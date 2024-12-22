@@ -79,16 +79,21 @@ private:
 
 	// 存储多个地图数据
 	QVector<MapData> maps;
+	// 静态背景缓存
+	QPixmap cachedStaticMap;
 	// 初始化地图
 	void initializeMapA(MapData& mapA);
 	void initializeMapB(MapData& mapB);
 	void initializeMapC(MapData& mapC);
 	// 选择需加载的地图号
 	void loadMap(int level);
+	// 缓存静态地图
+	void cacheStaticMap();
 	// 绘制地图
 	void paintEvent(QPaintEvent* event);
 	// 格子是否为空
 	bool isEmptyGrid = true;
+	bool checkEmptyGrid(int gridX, int gridY);
 
 	/*** 物品 ***/
 

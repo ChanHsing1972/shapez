@@ -41,6 +41,7 @@ private:
 	QTimer* checkTimer;
 	QVector<QVector<Device*>>* devices;
 	void checkForBelt();
+	bool isMineralAhead();
 };
 
 #endif // MINERAL_H

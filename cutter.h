@@ -15,7 +15,7 @@ public:
 	void mousePressEvent(QMouseEvent* event);
 
 private:
-	QPixmap pixmap;
+	QVector<QPixmap> pixmap;
 };
 
 #endif
