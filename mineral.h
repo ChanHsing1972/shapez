@@ -25,12 +25,6 @@ public:
 	void stopMoving();
 	int getX() const;
 	int getY() const;
-	void mousePressEvent(QMouseEvent* event) override;
-	void mouseMoveEvent(QMouseEvent* event) override;
-	void mouseReleaseEvent(QMouseEvent* event) override;
-
-signals:
-	void positionChanged(int x, int y);
 
 protected:
 	void paintEvent(QPaintEvent* event) override;
@@ -42,11 +36,11 @@ private:
 	int pixelX, pixelY;
 	int minerDirection;
 	int direction;
-	bool directionInitiated = false;
-	bool isDeleting = false;
 	QPixmap mineralImage;
 	QTimer* moveTimer;
+	QTimer* checkTimer;
 	QVector<QVector<Device*>>* devices;
+	void checkForBelt();
 };
 
 #endif // MINERAL_H

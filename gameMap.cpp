@@ -1,5 +1,7 @@
 #include "gameMap.h"
 
+QVector<Mineral*> GameMap::mineralList; // 初始化全局矿物对象列表
+
 GameMap::GameMap(QWidget* parent) : QWidget(parent),
 beltToPlace(12), minerToPlace(4), cutterToPlace(4), trashToPlace(4)
 {
@@ -247,12 +249,12 @@ void GameMap::mouseMoveEvent(QMouseEvent* event)
 	if (isPlacingBelt)
 	{
 		// 如果鼠标进入一个新的格子，则 isDirectionChanged 重置为 false，默认格子为空
-		if (!beltPositions.empty())
+		if (!beltList.empty())
 		{
 			int currentMouseGridX = mousePosition.x() / GRID_SIZE;
 			int currentMouseGridY = mousePosition.y() / GRID_SIZE;
-			int lastBeltGridX = beltPositions.last().x() / GRID_SIZE;
-			int lastBeltGridY = beltPositions.last().y() / GRID_SIZE;
+			int lastBeltGridX = beltList.back()->getX() / GRID_SIZE;
+			int lastBeltGridY = beltList.back()->getY() / GRID_SIZE;
 			if (currentMouseGridX != lastBeltGridX || currentMouseGridY != lastBeltGridY)
 			{
 				isDirectionChanged = false;
@@ -260,7 +262,7 @@ void GameMap::mouseMoveEvent(QMouseEvent* event)
 				placeBeltAt(event->pos()); // 先按照原来的方向，放置一个传送带，该过程将同时判断格子是否为空
 			}
 		}
-		if (beltPositions.size() >= 2 && isDirectionChanged == false && isEmptyGrid == true)
+		if (isDirectionChanged == false && isEmptyGrid == true)
 		{
 			getBeltDirection(event->pos()); // 检查此传送带方向是否需要更改
 		}
@@ -270,10 +272,26 @@ void GameMap::mouseMoveEvent(QMouseEvent* event)
 	if (isDeleting)
 	{
 		deleteDeviceAt(event->pos());
+		for (auto it = mineralList.begin(); it != mineralList.end();)
+		{
+			Mineral* mineral = *it;
+			if (mineral->geometry().contains(newMousePosition))
+			{
+				mineral->hide();
+				mineral->update();
+				mineral->deleteLater();
+				it = mineralList.erase(it); // 从容器中移除对象
+			}
+			else
+			{
+				++it;
+			}
+		}
+		update();
 	}
 }
 
-// 左键单击事件：放置物品
+// 左 / 右键单击事件：放置物品 / 删除物品及取消选中
 void GameMap::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton)
@@ -300,11 +318,16 @@ void GameMap::mousePressEvent(QMouseEvent* event)
 	if (event->button() == Qt::RightButton)
 	{
 		isDeleting = true;
+		canPlaceBelt = false;
+		canPlaceMiner = false;
+		canPlaceCutter = false;
+		canPlaceTrash = false;
 		deleteDeviceAt(event->pos());
+		update();
 	}
 }
 
-// 左键抬起事件：结束放置传送带 & 结束删除物品
+// 左 / 右键抬起事件：结束放置传送带 / 结束删除物品
 void GameMap::mouseReleaseEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton)
@@ -358,7 +381,14 @@ void GameMap::placeBeltAt(const QPoint& pos)
 	// 计算放置的位置，确保在格子内，然后计算最近的格子坐标（单位：像素）
 	int pixelX = (pos.x() / GRID_SIZE) * GRID_SIZE;
 	int pixelY = (pos.y() / GRID_SIZE) * GRID_SIZE;
-	// 如果格子里有东西，则不能放置传送带
+	// 如果超出地图范围，则不能放置
+	if (pixelX < 0 || pixelX >= WINDOW_WIDTH || pixelY < 0 || pixelY >= WINDOW_HEIGHT)
+	{
+		canPlaceBelt = false;
+		isPlacingBelt = false;
+		return;
+	}
+	// 如果格子里有东西，则不能放置
 	if (currentMap.cycleMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
 		|| currentMap.rectMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
 		|| currentMap.barriers.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
@@ -368,27 +398,29 @@ void GameMap::placeBeltAt(const QPoint& pos)
 		isEmptyGrid = false; // 该格子不为空
 		return;
 	}
-	// 确保放置在地图范围内，放置传送带
-	if (pixelX >= 0 && pixelX < WINDOW_WIDTH && pixelY >= 0 && pixelY < WINDOW_HEIGHT)
-	{
-		Belt* newBelt = new Belt(this);
-		newBelt->setPosition(pixelX, pixelY);
-		newBelt->setRotationState(rotationState);
-		connect(newBelt, &Belt::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
-		currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newBelt; // 加入地图的 devices
-		beltPositions.append(QPoint(pixelX, pixelY));
-		beltList.append(newBelt);
-		qDebug() << "beltList Size = " << beltList.size();
-	}
+	// 放置传送带
+	Belt* newBelt = new Belt(this);
+	newBelt->setPosition(pixelX, pixelY);
+	newBelt->setRotationState(rotationState);
+	connect(newBelt, &Belt::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
+	currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newBelt; // 加入地图的 devices
+	beltList.append(newBelt); // 记录传送带的指针
+	qDebug() << "BeltList size: " << beltList.size();
 	update();
 }
 
 // 放置开采机的实现过程
 void GameMap::placeMinerAt(const QPoint& pos)
 {
-	// 计算放置的位置，确保在格子内，然后计算最近的格子坐标
+	// 计算放置的位置，确保在格子内，然后计算最近的格子坐标（单位：像素）
 	int pixelX = (pos.x() / GRID_SIZE) * GRID_SIZE;
 	int pixelY = (pos.y() / GRID_SIZE) * GRID_SIZE;
+	// 如果超出地图范围，则不能放置
+	if (pixelX < 0 || pixelX >= WINDOW_WIDTH || pixelY < 0 || pixelY >= WINDOW_HEIGHT)
+	{
+		canPlaceMiner = false;
+		return;
+	}
 	// 如果格子里不是矿物，则不能放置开采机
 	if (!maps[0].cycleMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
 		&& !maps[0].rectMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE)))
@@ -398,27 +430,29 @@ void GameMap::placeMinerAt(const QPoint& pos)
 		update();
 		return;
 	}
-	// 确保放置在地图范围内，放置开采机
-	if (pixelX >= 0 && pixelX < WINDOW_WIDTH && pixelY >= 0 && pixelY < WINDOW_HEIGHT)
-	{
-		Miner* newMiner = new Miner(&currentMap.devices, this);
-		newMiner->setPosition(pixelX, pixelY);
-		newMiner->setRotationState(rotationState);
-		connect(newMiner, &Miner::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
-		connect(newMiner, &Miner::newMineralGenerated, this, &GameMap::onNewMineralGenerated);
-		currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newMiner;
-	}
+	Miner* newMiner = new Miner(&currentMap.devices, this);
+	newMiner->setPosition(pixelX, pixelY);
+	newMiner->setRotationState(rotationState);
+	connect(newMiner, &Miner::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
+	connect(newMiner, &Miner::newMineralGenerated, this, &GameMap::onNewMineralGenerated); // 连接生成矿物信号
+	currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newMiner; // 加入地图的 devices
 	canPlaceMiner = false; // 重置状态
-	rotationState = 0;
+	rotationState = 0; // 重置状态
 	update();
 }
 
 // 放置切割机的实现过程
 void GameMap::placeCutterAt(const QPoint& pos)
 {
-	// 计算放置的位置，确保在格子内，然后计算最近的格子坐标
+	// 计算放置的位置，确保在格子内，然后计算最近的格子坐标（单位：像素）
 	int pixelX = (pos.x() / GRID_SIZE) * GRID_SIZE;
 	int pixelY = (pos.y() / GRID_SIZE) * GRID_SIZE;
+	// 如果超出地图范围，则不能放置
+	if (pixelX < 0 || pixelX >= WINDOW_WIDTH || pixelY < 0 || pixelY >= WINDOW_HEIGHT)
+	{
+		canPlaceCutter = false;
+		return;
+	}
 	// 如果格子里有东西，则不能放置
 	if (currentMap.cycleMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
 		|| currentMap.rectMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
@@ -431,26 +465,28 @@ void GameMap::placeCutterAt(const QPoint& pos)
 		update();
 		return;
 	}
-	// 确保放置在地图范围内
-	if (pixelX >= 0 && pixelX < WINDOW_WIDTH && pixelY >= 0 && pixelY < WINDOW_HEIGHT)
-	{
-		Cutter* newCutter = new Cutter(this);
-		newCutter->setPosition(pixelX, pixelY);
-		newCutter->setRotationState(rotationState);
-		connect(newCutter, &Cutter::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
-		currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newCutter;
-	}
+	Cutter* newCutter = new Cutter(this);
+	newCutter->setPosition(pixelX, pixelY);
+	newCutter->setRotationState(rotationState);
+	connect(newCutter, &Cutter::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
+	currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newCutter; // 加入地图的 devices
 	canPlaceCutter = false; // 重置状态
-	rotationState = 0;
+	rotationState = 0; // 重置状态
 	update();
 }
 
 // 放置垃圾桶的实现过程
 void GameMap::placeTrashAt(const QPoint& pos)
 {
-	// 计算放置的位置，确保在格子内，然后计算最近的格子坐标
+	// 计算放置的位置，确保在格子内，然后计算最近的格子坐标（单位：像素）
 	int pixelX = (pos.x() / GRID_SIZE) * GRID_SIZE;
 	int pixelY = (pos.y() / GRID_SIZE) * GRID_SIZE;
+	// 如果超出地图范围，则不能放置
+	if (pixelX < 0 || pixelX >= WINDOW_WIDTH || pixelY < 0 || pixelY >= WINDOW_HEIGHT)
+	{
+		canPlaceTrash = false;
+		return;
+	}
 	// 如果格子里有东西，则不能放置
 	if (currentMap.cycleMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
 		|| currentMap.rectMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
@@ -463,17 +499,13 @@ void GameMap::placeTrashAt(const QPoint& pos)
 		update();
 		return;
 	}
-	// 确保放置在地图范围内，放置
-	if (pixelX >= 0 && pixelX < WINDOW_WIDTH && pixelY >= 0 && pixelY < WINDOW_HEIGHT)
-	{
-		Trash* newTrash = new Trash(this);
-		newTrash->setPosition(pixelX, pixelY);
-		newTrash->setRotationState(rotationState);
-		connect(newTrash, &Trash::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
-		currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newTrash;
-	}
+	Trash* newTrash = new Trash(this);
+	newTrash->setPosition(pixelX, pixelY);
+	newTrash->setRotationState(rotationState);
+	connect(newTrash, &Trash::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
+	currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newTrash;// 加入地图的 devices
 	canPlaceTrash = false; // 重置状态
-	rotationState = 0;
+	rotationState = 0; // 重置状态
 	update();
 }
 
@@ -484,20 +516,14 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 	// 鼠标在一个格子里的坐标（单位：像素）
 	int pixelInGridX = currentPosition.x() % GRID_SIZE;
 	int pixelInGridY = currentPosition.y() % GRID_SIZE;
-	// 上个传送带的坐标（单位：格）
-	int lastGridX = beltPositions[beltPositions.size() - 2].x() / GRID_SIZE;
-	int lastGridY = beltPositions[beltPositions.size() - 2].y() / GRID_SIZE;
-	// 当前传送带的坐标（单位：格）
-	int currentGridX = currentPosition.x() / GRID_SIZE;
-	int currentGridY = currentPosition.y() / GRID_SIZE;
 
-	if (pixelInGridX <= 5 && !(lastGridX < currentGridX && lastGridY == currentGridY))
+	if (pixelInGridX <= 3 && (rotationState == _W || rotationState == _S))
 	{ // 左边缘
-		if (lastGridX == currentGridX && lastGridY > currentGridY)
+		if (rotationState == _W)
 		{
 			rotationState = _W_A;
 		}
-		else if (lastGridX == currentGridX && lastGridY < currentGridY)
+		else if (rotationState == _S)
 		{
 			rotationState = _S_A;
 		}
@@ -507,13 +533,13 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 		isDirectionChanged = true;
 	}
 
-	else if (pixelInGridX >= GRID_SIZE - 5 && !(lastGridX > currentGridX && lastGridY == currentGridY))
+	else if (pixelInGridX >= GRID_SIZE - 3 && (rotationState == _W || rotationState == _S))
 	{ // 右边缘
-		if (lastGridX == currentGridX && lastGridY > currentGridY)
+		if (rotationState == _W)
 		{
 			rotationState = _W_D;
 		}
-		else if (lastGridX == currentGridX && lastGridY < currentGridY)
+		else if (rotationState == _S)
 		{
 			rotationState = _S_D;
 		}
@@ -523,15 +549,15 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 		isDirectionChanged = true;
 	}
 
-	else if (pixelInGridY <= 5 && !(lastGridX == currentGridX && lastGridY < currentGridY))
+	else if (pixelInGridY <= 3 && (rotationState == _D || rotationState == _A))
 	{ // 上边缘
-		if (lastGridX > currentGridX && lastGridY == currentGridY)
-		{
-			rotationState = _A_W;
-		}
-		else if (lastGridX < currentGridX && lastGridY == currentGridY)
+		if (rotationState == _D)
 		{
 			rotationState = _D_W;
+		}
+		else if (rotationState == _A)
+		{
+			rotationState = _A_W;
 		}
 		rightClicked(beltList[beltList.size() - 1]);
 		placeBeltAt(currentPosition);
@@ -539,15 +565,15 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 		isDirectionChanged = true;
 	}
 
-	else if (pixelInGridY >= GRID_SIZE - 5 && !(lastGridX == currentGridX && lastGridY > currentGridY))
+	else if (pixelInGridY >= GRID_SIZE - 3 && (rotationState == _D || rotationState == _A))
 	{ // 下边缘
-		if (lastGridX > currentGridX && lastGridY == currentGridY)
-		{
-			rotationState = _A_S;
-		}
-		else if (lastGridX < currentGridX && lastGridY == currentGridY)
+		if (rotationState == _D)
 		{
 			rotationState = _D_S;
+		}
+		else if (rotationState == _A)
+		{
+			rotationState = _A_S;
 		}
 		rightClicked(beltList[beltList.size() - 1]);
 		placeBeltAt(currentPosition);
@@ -565,10 +591,14 @@ void GameMap::onNewMineralGenerated(Mineral* mineral)
 		int beltGridX = belt->getX() / GRID_SIZE;
 		int beltGridY = belt->getY() / GRID_SIZE;
 		// 矿物生成后，开采器周围必须存在与之方向相同的传送带，才能开始运动
-		if ((QPoint(beltGridX, beltGridY - 1) == mineralGridPos && belt->getRotationState() == _S && mineral->getDirection() == _S)
-			|| (QPoint(beltGridX - 1, beltGridY) == mineralGridPos && belt->getRotationState() == _D && mineral->getDirection() == _D)
-			|| (QPoint(beltGridX, beltGridY + 1) == mineralGridPos && belt->getRotationState() == _W && mineral->getDirection() == _W)
-			|| (QPoint(beltGridX + 1, beltGridY) == mineralGridPos && belt->getRotationState() == _A && mineral->getDirection() == _A))
+		if ((QPoint(beltGridX, beltGridY - 1) == mineralGridPos && mineral->getDirection() == _S
+			&& (belt->getRotationState() == _S || belt->getRotationState() == _S_A || belt->getRotationState() == _S_D))
+			|| (QPoint(beltGridX - 1, beltGridY) == mineralGridPos && mineral->getDirection() == _D
+				&& (belt->getRotationState() == _D || belt->getRotationState() == _D_S || belt->getRotationState() == _D_W))
+			|| (QPoint(beltGridX, beltGridY + 1) == mineralGridPos && mineral->getDirection() == _W
+				&& (belt->getRotationState() == _W || belt->getRotationState() == _W_A || belt->getRotationState() == _W_D))
+			|| (QPoint(beltGridX + 1, beltGridY) == mineralGridPos && mineral->getDirection() == _A
+				&& (belt->getRotationState() == _A || belt->getRotationState() == _A_S || belt->getRotationState() == _A_W)))
 		{
 			mineral->startMoving();
 		}
