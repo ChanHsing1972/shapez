@@ -14,13 +14,14 @@ Miner::Miner(QVector<QVector<Device*>>* devices, QWidget* parent)
 
 	generateTimer = new QTimer(this);
 	connect(generateTimer, &QTimer::timeout, this, &Miner::generateMineral);
-	generateTimer->start(2000); // 每2秒生成一个矿物
+	generateTimer->start(2000); // 每 2 秒生成一个矿物
 }
 
 void Miner::paintEvent(QPaintEvent* event)
 {
 	Q_UNUSED(event);
 	QPainter painter(this);
+	raise();
 	painter.drawPixmap(rect(), pixmap[rotationState].scaled(size(), Qt::KeepAspectRatio));
 }
 
@@ -34,6 +35,7 @@ void Miner::generateMineral() // 生成矿物
 	Mineral* newMineral = new Mineral(devices, parentWidget());
 	newMineral->setPosition(posX, posY);
 	newMineral->setDirection(rotationState);
+	GameMap::mineralList.append(newMineral); // 将新生成的矿物添加到全局列表
 	emit newMineralGenerated(newMineral);
 	qDebug() << "Mineral generated!";
 }

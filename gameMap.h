@@ -33,7 +33,7 @@ struct MapData
 	QVector<QPoint> hubSmall;
 	QVector<QVector<Device*>> devices;
 
-	MapData() :devices(WINDOW_WIDTH / GRID_SIZE, QVector<Device*>(WINDOW_HEIGHT / GRID_SIZE, nullptr)) {}
+	MapData() :devices(WINDOW_WIDTH / GRID_SIZE * 2, QVector<Device*>(WINDOW_HEIGHT / GRID_SIZE * 2, nullptr)) {}
 };
 
 class GameMap : public QWidget
@@ -43,6 +43,9 @@ class GameMap : public QWidget
 public:
 	GameMap(QWidget* parent = nullptr);
 	~GameMap();
+	static QVector<Mineral*> mineralList; // 全局矿物对象列表
+
+protected:
 	// 处理鼠标事件
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseMoveEvent(QMouseEvent* event) override;
@@ -51,6 +54,7 @@ public:
 	void deleteDeviceAt(const QPoint& pos);
 	// 当前地图数据
 	MapData currentMap;
+
 
 private:
 	// Ui::gameMapClass ui;
@@ -66,6 +70,8 @@ private:
 	QVector<QPixmap> cutterToPlace;
 	QVector<QPixmap> trashToPlace;
 
+	// 当前鼠标位置
+	QPoint mousePosition;
 	// 图标旋转角度
 	int rotationState = 0;
 
@@ -73,7 +79,6 @@ private:
 
 	// 存储多个地图数据
 	QVector<MapData> maps;
-
 	// 初始化地图
 	void initializeMapA(MapData& mapA);
 	void initializeMapB(MapData& mapB);
@@ -82,6 +87,8 @@ private:
 	void loadMap(int level);
 	// 绘制地图
 	void paintEvent(QPaintEvent* event);
+	// 格子是否为空
+	bool isEmptyGrid = true;
 
 	/*** 物品 ***/
 
@@ -99,18 +106,11 @@ private:
 	void placeCutterAt(const QPoint& pos);
 	void placeTrashAt(const QPoint& pos);
 
-	// 当前鼠标位置
-	QPoint mousePosition;
-	// 放置的传送带位置
-	QVector<QPoint> beltPositions;
+	// 放置的传送带列表
 	QVector<Belt*> beltList;
-	QVector<Mineral*> mineralList;
 	// 判断传送带方向
 	void getBeltDirection(QPoint currentPosition);
-	void onNewMineralGenerated(Mineral* mineral);
 	bool isDirectionChanged = false;
-	// 格子是否为空
-	bool isEmptyGrid = true;
 
 	/*** 槽 ***/
 
@@ -119,6 +119,8 @@ private slots:
 	void onButtonClicked(QString s);
 	// 右键删除操作
 	void rightClicked(Device* device);
+	// 新生成矿物的槽函数
+	void onNewMineralGenerated(Mineral* mineral);
 };
 
 #endif

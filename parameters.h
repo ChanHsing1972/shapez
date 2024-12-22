@@ -44,8 +44,9 @@
 // 颜色
 #define GRAY 200, 200, 200
 
-// 传送带速度
+// 参数
 #define BELT_SPEED GRID_SIZE/60 // 1格/time
 #define MOVE_FREQUENCY 10 // 10ms/time
+#define CHECK_FREQUENCY 500
 
 #endif
