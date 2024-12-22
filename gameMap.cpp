@@ -137,19 +137,22 @@ void GameMap::initializeMapC(MapData& mapB) {}
 void GameMap::loadMap(int level)
 {
 	currentMap = maps[level];
+	cacheStaticMap(); // 缓存静态背景
 	update();
 }
 
-// 绘制地图
-void GameMap::paintEvent(QPaintEvent* event)
+// 缓存静态地图
+void GameMap::cacheStaticMap()
 {
-	Q_UNUSED(event);
-	QWidget::paintEvent(event);
-	QPainter painter(this);
+	// 创建一个与窗口大小相同的 QPixmap
+	cachedStaticMap = QPixmap(this->size());
+	cachedStaticMap.fill(Qt::transparent); // 填充透明背景
+
+	QPainter painter(&cachedStaticMap);
 	painter.setRenderHint(QPainter::Antialiasing);
 	QColor gridColor(GRAY);
 
-	// 生成网格
+	// 绘制网格
 	for (int x = 0; x < width(); x += GRID_SIZE)
 	{
 		painter.setPen(gridColor);
@@ -185,10 +188,23 @@ void GameMap::paintEvent(QPaintEvent* event)
 		painter.drawPixmap(x, y, barrierImage.scaled(GRID_SIZE, GRID_SIZE, Qt::KeepAspectRatio));
 	}
 
-	// 绘制小型中心（小型中心用数组存储它占用的格子）
+	// 绘制小型中心
 	int hubSmallX = currentMap.hubSmall[0].x() * GRID_SIZE;
 	int hubSmallY = currentMap.hubSmall[0].y() * GRID_SIZE;
 	painter.drawPixmap(hubSmallX, hubSmallY, hubSmallImage.scaled(GRID_SIZE * 2, GRID_SIZE * 2, Qt::KeepAspectRatio));
+}
+
+// 绘制地图
+void GameMap::paintEvent(QPaintEvent* event)
+{
+	Q_UNUSED(event);
+	QWidget::paintEvent(event);
+	QPainter painter(this);
+	painter.setRenderHint(QPainter::Antialiasing);
+	QColor gridColor(GRAY);
+
+	// 绘制缓存的静态背景
+	painter.drawPixmap(0, 0, cachedStaticMap);
 
 	// 绘制“待放置”反馈图标
 	if (canPlaceBelt)
@@ -234,8 +250,19 @@ void GameMap::onButtonClicked(QString s)
 // 鼠标移动事件：更新光标 & 传送带拖动放置 & 拖动删除物品
 void GameMap::mouseMoveEvent(QMouseEvent* event)
 {
-	// 只在鼠标位置改变时更新，减少重绘次数
 	QPoint newMousePosition = event->pos();
+
+	// 添加边界检查，确保鼠标位置在地图范围内
+	int mouseX = newMousePosition.x();
+	int mouseY = newMousePosition.y();
+	if (mouseX < 0) mouseX = 0;
+	if (mouseY < 0) mouseY = 0;
+	if (mouseX >= WINDOW_WIDTH) mouseX = WINDOW_WIDTH - 1;
+	if (mouseY >= WINDOW_HEIGHT) mouseY = WINDOW_HEIGHT - 1;
+	newMousePosition.setX(mouseX);
+	newMousePosition.setY(mouseY);
+
+	// 只在鼠标位置改变时更新，减少重绘次数
 	if (newMousePosition != mousePosition)
 	{
 		mousePosition = newMousePosition;
@@ -366,6 +393,12 @@ void GameMap::keyPressEvent(QKeyEvent* event)
 // 获取删除物品位置的设备，传送给 rightClicked 函数进行具体的删除操作
 void GameMap::deleteDeviceAt(const QPoint& pos)
 {
+	// 计算删除的位置，确保在格子内
+	if (pos.x() < 0 || pos.x() >= WINDOW_WIDTH || pos.y() < 0 || pos.y() >= WINDOW_HEIGHT)
+	{
+		return;
+	}
+
 	int gridX = pos.x() / GRID_SIZE;
 	int gridY = pos.y() / GRID_SIZE;
 	Device* device = currentMap.devices[gridX][gridY];
@@ -389,11 +422,7 @@ void GameMap::placeBeltAt(const QPoint& pos)
 		return;
 	}
 	// 如果格子里有东西，则不能放置
-	if (currentMap.cycleMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.rectMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.barriers.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.hubSmall.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] != nullptr)
+	if (checkEmptyGrid(pixelX / GRID_SIZE, pixelY / GRID_SIZE) == false)
 	{
 		isEmptyGrid = false; // 该格子不为空
 		return;
@@ -454,11 +483,9 @@ void GameMap::placeCutterAt(const QPoint& pos)
 		return;
 	}
 	// 如果格子里有东西，则不能放置
-	if (currentMap.cycleMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.rectMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.barriers.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.hubSmall.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] != nullptr)
+	if (checkEmptyGrid(pixelX / GRID_SIZE, pixelY / GRID_SIZE) == false
+		|| ((rotationState == _W || rotationState == _S) && checkEmptyGrid(pixelX / GRID_SIZE + 1, pixelY / GRID_SIZE) == false)
+		|| ((rotationState == _D || rotationState == _A) && checkEmptyGrid(pixelX / GRID_SIZE, pixelY / GRID_SIZE + 1) == false))
 	{
 		canPlaceCutter = false;
 		rotationState = 0;
@@ -470,6 +497,14 @@ void GameMap::placeCutterAt(const QPoint& pos)
 	newCutter->setRotationState(rotationState);
 	connect(newCutter, &Cutter::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
 	currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newCutter; // 加入地图的 devices
+	if (rotationState == _W || rotationState == _S)
+	{
+		currentMap.devices[pixelX / GRID_SIZE + 1][pixelY / GRID_SIZE] = newCutter; // 占用第二个格子
+	}
+	else if (rotationState == _D || rotationState == _A)
+	{
+		currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE + 1] = newCutter; // 占用第二个格子
+	}
 	canPlaceCutter = false; // 重置状态
 	rotationState = 0; // 重置状态
 	update();
@@ -488,11 +523,7 @@ void GameMap::placeTrashAt(const QPoint& pos)
 		return;
 	}
 	// 如果格子里有东西，则不能放置
-	if (currentMap.cycleMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.rectMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.barriers.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.hubSmall.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE))
-		|| currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] != nullptr)
+	if (checkEmptyGrid(pixelX / GRID_SIZE, pixelY / GRID_SIZE) == false)
 	{
 		canPlaceTrash = false;
 		rotationState = 0;
@@ -517,8 +548,15 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 	int pixelInGridX = currentPosition.x() % GRID_SIZE;
 	int pixelInGridY = currentPosition.y() % GRID_SIZE;
 
+	// 确保像素坐标在有效范围内
+	if (pixelInGridX < 0 || pixelInGridX >= GRID_SIZE || pixelInGridY < 0 || pixelInGridY >= GRID_SIZE)
+	{
+		return;
+	}
+
+	// 左边缘
 	if (pixelInGridX <= 3 && (rotationState == _W || rotationState == _S))
-	{ // 左边缘
+	{
 		if (rotationState == _W)
 		{
 			rotationState = _W_A;
@@ -533,8 +571,9 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 		isDirectionChanged = true;
 	}
 
+	// 右边缘
 	else if (pixelInGridX >= GRID_SIZE - 3 && (rotationState == _W || rotationState == _S))
-	{ // 右边缘
+	{
 		if (rotationState == _W)
 		{
 			rotationState = _W_D;
@@ -549,8 +588,9 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 		isDirectionChanged = true;
 	}
 
+	// 上边缘
 	else if (pixelInGridY <= 3 && (rotationState == _D || rotationState == _A))
-	{ // 上边缘
+	{
 		if (rotationState == _D)
 		{
 			rotationState = _D_W;
@@ -565,8 +605,9 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 		isDirectionChanged = true;
 	}
 
+	// 下边缘
 	else if (pixelInGridY >= GRID_SIZE - 3 && (rotationState == _D || rotationState == _A))
-	{ // 下边缘
+	{
 		if (rotationState == _D)
 		{
 			rotationState = _D_S;
@@ -603,4 +644,18 @@ void GameMap::onNewMineralGenerated(Mineral* mineral)
 			mineral->startMoving();
 		}
 	}
+}
+
+// 检查格子是否为空
+bool GameMap::checkEmptyGrid(int gridX, int gridY)
+{
+	if (currentMap.cycleMines.contains(QPoint(gridX, gridY))
+		|| currentMap.rectMines.contains(QPoint(gridX, gridY))
+		|| currentMap.barriers.contains(QPoint(gridX, gridY))
+		|| currentMap.hubSmall.contains(QPoint(gridX, gridY))
+		|| currentMap.devices[gridX / GRID_SIZE][gridY / GRID_SIZE] != nullptr)
+	{
+		return false;
+	}
+	return true;
 }

@@ -3,6 +3,7 @@
 
 #include <QPixmap>
 #include <QTimer>
+#include <QPainter>
 #include "parameters.h"
 #include "device.h"
 #include "mineral.h"
