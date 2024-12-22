@@ -1,15 +1,11 @@
 #include "cutter.h"
 
-Cutter::Cutter(QWidget* parent) : Device(parent)
+Cutter::Cutter(QWidget* parent) : Device(parent), pixmap(4)
 {
-	switch (rotationState)
-	{
-	case _W: pixmap.load("./assets/images/cutter_W.png"); break;
-	case _D: pixmap.load("./assets/images/cutter_D.png"); break;
-	case _S: pixmap.load("./assets/images/cutter_S.png"); break;
-	case _A: pixmap.load("./assets/images/cutter_A.png"); break;
-	default: break;
-	}
+	pixmap[_W].load("./assets/images/cutter_W.png");
+	pixmap[_D].load("./assets/images/cutter_D.png");
+	pixmap[_S].load("./assets/images/cutter_S.png");
+	pixmap[_A].load("./assets/images/cutter_A.png");
 }
 
 void Cutter::paintEvent(QPaintEvent* event)
@@ -20,12 +16,12 @@ void Cutter::paintEvent(QPaintEvent* event)
 	if (rotationState == _W || rotationState == _S)
 	{
 		setFixedSize(GRID_SIZE * 2, GRID_SIZE);
-		painter.drawPixmap(0, 0, pixmap.scaled(GRID_SIZE * 2, GRID_SIZE, Qt::KeepAspectRatio));
+		painter.drawPixmap(0, 0, pixmap[rotationState].scaled(GRID_SIZE * 2, GRID_SIZE, Qt::KeepAspectRatio));
 	}
 	else if (rotationState == _D || rotationState == _A)
 	{
 		setFixedSize(GRID_SIZE, GRID_SIZE * 2);
-		painter.drawPixmap(0, 0, pixmap.scaled(GRID_SIZE, GRID_SIZE * 2, Qt::KeepAspectRatio));
+		painter.drawPixmap(0, 0, pixmap[rotationState].scaled(GRID_SIZE, GRID_SIZE * 2, Qt::KeepAspectRatio));
 	}
 }
 

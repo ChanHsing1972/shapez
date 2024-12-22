@@ -1,5 +1,4 @@
 #include "Miner.h"
-#include <QPainter>
 
 Miner::Miner(QVector<QVector<Device*>>* devices, QWidget* parent)
 	: Device(parent), devices(devices), pixmap(4)
