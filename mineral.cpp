@@ -1,11 +1,18 @@
 // mineral.cpp
 #include "mineral.h"
 
-Mineral::Mineral(QVector<QVector<Device*>>* devices, QWidget* parent)
+Mineral::Mineral(QVector<QVector<Device*>>* devices, int mineralType, QWidget* parent)
 	: QWidget(parent), pixelX(0), pixelY(0), minerDirection(0), devices(devices)
 {
 	setFixedSize(GRID_SIZE, GRID_SIZE);
-	mineralImage.load("./assets/images/cycle.png");
+	if (mineralType == CYCLE_MINE)
+	{
+		mineralImage.load("./assets/images/cycle.png");
+	}
+	else if (mineralType == RECT_MINE)
+	{
+		mineralImage.load("./assets/images/rect.png");
+	}
 	moveTimer = new QTimer(this);
 	checkTimer = new QTimer(this);
 	connect(moveTimer, &QTimer::timeout, this, &Mineral::moving); // 每次触发定时器，移动矿物一次
@@ -125,24 +132,25 @@ void Mineral::moving()
 		return;
 	}
 
-	// 检查矿物前方是否有传送带，如果没有，则停止移动，确保矿物最后停留在传送带上
-	int nextGridX = gridX;
-	int nextGridY = gridY;
-	switch (direction)
+	// 检查矿物是否到达交付中心
+	if (checkIfAtHub())
 	{
-	case _W:case _D_W:case _A_W:
-		nextGridY--;
-		break;
-	case _A:case _W_A:case _S_A:
-		nextGridX--;
-		break;
-	case _D:case _S_D:case _W_D:
-		nextGridX++;
-		break;
-	case _S:case _A_S:case _D_S:
-		nextGridY++;
-		break;
+		emit deliveredToHub(); // 发送交付信号
+		hide(); // 隐藏矿物
+		// 从 mineralList 中移除矿物对象
+		auto it = std::find_if(GameMap::mineralList.begin(), GameMap::mineralList.end(),
+			[this](Mineral* m) { return m == this; });
+		if (it != GameMap::mineralList.end())
+		{
+			GameMap::mineralList.erase(it); // 从容器中移除对象
+		}
+		this->deleteLater(); // 删除矿物
+		return;
 	}
+
+	// 检查矿物前方是否有传送带，如果没有，则停止移动，确保矿物最后停留在传送带上
+	int nextGridX = getNextGridX(gridX);
+	int nextGridY = getNextGridY(gridY);
 	if ((nextGridX < 0 || nextGridY < 0 || nextGridX >= devices->size() || nextGridY >= (*devices)[0].size()
 		|| !dynamic_cast<Belt*>((*devices)[nextGridX][nextGridY])) && (offsetX == 0 && offsetY == 0))
 	{
@@ -229,4 +237,58 @@ bool Mineral::isMineralAhead()
 		}
 	}
 	return false;
+}
+
+// 检查矿物是否到达交付中心
+bool Mineral::checkIfAtHub()
+{
+	int gridX = pixelX / GRID_SIZE;
+	int gridY = pixelY / GRID_SIZE;
+	int nextGridX = getNextGridX(gridX);
+	int nextGridY = getNextGridY(gridY);
+	int offsetX = pixelX % GRID_SIZE; // 矿物在格子里的偏移量（单位：像素）
+	int offsetY = pixelY % GRID_SIZE; // 矿物在格子里的偏移量（单位：像素）
+
+	// 交付中心的位置为
+	// (WINDOW_WIDTH / GRID_SIZE - 2) / 2 + i, (WINDOW_HEIGHT / GRID_SIZE - 2) / 2 + j
+	if (offsetX == 0 && offsetY == 0
+		&& ((nextGridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 && nextGridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2)
+			|| (nextGridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 + 1 && nextGridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2)
+			|| (nextGridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 && nextGridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2 + 1)
+			|| (nextGridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 + 1 && nextGridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2 + 1)))
+	{
+		qDebug() << "Mineral delivered!";
+		return true;
+	}
+	return false;
+}
+
+int Mineral::getNextGridX(int gridX)
+{
+	int nextGridX = gridX;
+	switch (direction)
+	{
+	case _A:case _W_A:case _S_A:
+		nextGridX--;
+		break;
+	case _D:case _S_D:case _W_D:
+		nextGridX++;
+		break;
+	}
+	return nextGridX;
+}
+
+int Mineral::getNextGridY(int gridY)
+{
+	int nextGridY = gridY;
+	switch (direction)
+	{
+	case _W:case _D_W:case _A_W:
+		nextGridY--;
+		break;
+	case _S:case _A_S:case _D_S:
+		nextGridY++;
+		break;
+	}
+	return nextGridY;
 }

@@ -19,10 +19,12 @@
 #include "trash.h"
 #include "helpPage.h"
 #include "mineral.h"
+#include "hub.h"
 
 // #include "ui_gameMap.h"
 class Belt;
 class Mineral;
+class Hub;
 
 struct MapData
 {
@@ -104,6 +106,7 @@ private:
 	bool canPlaceTrash;
 	bool isPlacingBelt;
 	bool isDeleting;
+	bool placeBeltFeedback;
 
 	// 放置物品的具体过程
 	void placeBeltAt(const QPoint& pos);
@@ -116,6 +119,8 @@ private:
 	// 判断传送带方向
 	void getBeltDirection(QPoint currentPosition);
 	bool isDirectionChanged = false;
+
+	Hub* hub;
 
 	/*** 槽 ***/
 

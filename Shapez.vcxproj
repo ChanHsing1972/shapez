@@ -134,7 +134,7 @@
     <QtMoc Include="device.h" />
     <ClInclude Include="gameState.h" />
     <QtMoc Include="helpPage.h" />
-    <ClInclude Include="hub.h" />
+    <QtMoc Include="hub.h" />
     <QtMoc Include="mineral.h" />
     <QtMoc Include="miner.h" />
     <ClInclude Include="parameters.h" />

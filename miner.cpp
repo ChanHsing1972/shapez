@@ -29,9 +29,14 @@ void Miner::mousePressEvent(QMouseEvent* event)
 	Device::mousePressEvent(event); // 调用基类处理
 }
 
+void Miner::setMineralType(int type)
+{
+	mineralType = type;
+}
+
 void Miner::generateMineral() // 生成矿物
 {
-	Mineral* newMineral = new Mineral(devices, parentWidget());
+	Mineral* newMineral = new Mineral(devices, mineralType, parentWidget());
 	newMineral->setPosition(posX, posY);
 	newMineral->setDirection(rotationState);
 	GameMap::mineralList.append(newMineral); // 将新生成的矿物添加到全局列表

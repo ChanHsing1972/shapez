@@ -37,7 +37,9 @@
 #define _W_D 11
 
 // 矿物
+#define CYCLE_MINE 1
 #define CYCLE_MINE_VALUE 10
+#define RECT_MINE 0
 #define RECT_MINE_VALUE 50
 #define MINERAL_SIZE GRID_SIZE/1.5
 
@@ -45,8 +47,9 @@
 #define GRAY 200, 200, 200
 
 // 参数
-#define BELT_SPEED GRID_SIZE/60 // 1格/time
+#define BELT_SPEED GRID_SIZE/30 // 1格/time
 #define MOVE_FREQUENCY 10 // 10ms/time
-#define CHECK_FREQUENCY 500
+#define CHECK_FREQUENCY 100
+#define EDGE_SIZE 5
 
 #endif

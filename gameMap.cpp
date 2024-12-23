@@ -19,16 +19,6 @@ beltToPlace(12), minerToPlace(4), cutterToPlace(4), trashToPlace(4)
 	beltToPlace[_S].load("./assets/images/belt_blue_S.png");
 	beltToPlace[_A].load("./assets/images/belt_blue_A.png");
 
-	beltToPlace[_W_D].load("./assets/images/belt_blue_W_D.png");
-	beltToPlace[_D_S].load("./assets/images/belt_blue_D_S.png");
-	beltToPlace[_S_A].load("./assets/images/belt_blue_S_A.png");
-	beltToPlace[_A_W].load("./assets/images/belt_blue_A_W.png");
-
-	beltToPlace[_W_A].load("./assets/images/belt_blue_W_A.png");
-	beltToPlace[_A_S].load("./assets/images/belt_blue_A_S.png");
-	beltToPlace[_S_D].load("./assets/images/belt_blue_S_D.png");
-	beltToPlace[_D_W].load("./assets/images/belt_blue_D_W.png");
-
 	cutterToPlace[_W].load("./assets/images/cutter_blue_W.png");
 	cutterToPlace[_D].load("./assets/images/cutter_blue_D.png");
 	cutterToPlace[_S].load("./assets/images/cutter_blue_S.png");
@@ -192,6 +182,8 @@ void GameMap::cacheStaticMap()
 	int hubSmallX = currentMap.hubSmall[0].x() * GRID_SIZE;
 	int hubSmallY = currentMap.hubSmall[0].y() * GRID_SIZE;
 	painter.drawPixmap(hubSmallX, hubSmallY, hubSmallImage.scaled(GRID_SIZE * 2, GRID_SIZE * 2, Qt::KeepAspectRatio));
+	hub = new Hub(this);
+	hub->setPosition(hubSmallX, hubSmallY); // 根据实际坐标设置
 }
 
 // 绘制地图
@@ -207,33 +199,31 @@ void GameMap::paintEvent(QPaintEvent* event)
 	painter.drawPixmap(0, 0, cachedStaticMap);
 
 	// 绘制“待放置”反馈图标
-	if (canPlaceBelt)
+	int mouseX = mousePosition.x() / GRID_SIZE * GRID_SIZE;
+	int mouseY = mousePosition.y() / GRID_SIZE * GRID_SIZE;
+
+	if (canPlaceBelt && placeBeltFeedback)
 	{
-		painter.drawPixmap(mousePosition.x() - GRID_SIZE / 2, mousePosition.y() - GRID_SIZE / 2,
-			beltToPlace[rotationState].scaled(GRID_SIZE, GRID_SIZE, Qt::KeepAspectRatio));
+		painter.drawPixmap(mouseX, mouseY, beltToPlace[rotationState].scaled(GRID_SIZE, GRID_SIZE, Qt::KeepAspectRatio));
 	}
 	if (canPlaceMiner)
 	{
-		painter.drawPixmap(mousePosition.x() - GRID_SIZE / 2, mousePosition.y() - GRID_SIZE / 2,
-			minerToPlace[rotationState].scaled(GRID_SIZE, GRID_SIZE, Qt::KeepAspectRatio));
+		painter.drawPixmap(mouseX, mouseY, minerToPlace[rotationState].scaled(GRID_SIZE, GRID_SIZE, Qt::KeepAspectRatio));
 	}
 	if (canPlaceCutter)
 	{
 		if (rotationState == _W || rotationState == _S)
 		{
-			painter.drawPixmap(mousePosition.x() - GRID_SIZE / 2, mousePosition.y() - GRID_SIZE / 2,
-				cutterToPlace[rotationState].scaled(GRID_SIZE * 2, GRID_SIZE, Qt::KeepAspectRatio));
+			painter.drawPixmap(mouseX, mouseY, cutterToPlace[rotationState].scaled(GRID_SIZE * 2, GRID_SIZE, Qt::KeepAspectRatio));
 		}
 		else if (rotationState == _D || rotationState == _A)
 		{
-			painter.drawPixmap(mousePosition.x() - GRID_SIZE / 2, mousePosition.y() - GRID_SIZE / 2,
-				cutterToPlace[rotationState].scaled(GRID_SIZE, GRID_SIZE * 2, Qt::KeepAspectRatio));
+			painter.drawPixmap(mouseX, mouseY, cutterToPlace[rotationState].scaled(GRID_SIZE, GRID_SIZE * 2, Qt::KeepAspectRatio));
 		}
 	}
 	if (canPlaceTrash)
 	{
-		painter.drawPixmap(mousePosition.x() - GRID_SIZE / 2, mousePosition.y() - GRID_SIZE / 2,
-			trashToPlace[rotationState].scaled(GRID_SIZE, GRID_SIZE, Qt::KeepAspectRatio));
+		painter.drawPixmap(mouseX, mouseY, trashToPlace[rotationState].scaled(GRID_SIZE, GRID_SIZE, Qt::KeepAspectRatio));
 	}
 }
 
@@ -242,6 +232,7 @@ void GameMap::onButtonClicked(QString s)
 {
 	qDebug() << s << "button clicked!";
 	canPlaceBelt = (s == "Belt" ? true : false);
+	placeBeltFeedback = (s == "Belt" ? true : false);
 	canPlaceMiner = (s == "Miner" ? true : false);
 	canPlaceCutter = (s == "Cutter" ? true : false);
 	canPlaceTrash = (s == "Trash" ? true : false);
@@ -275,6 +266,7 @@ void GameMap::mouseMoveEvent(QMouseEvent* event)
 	// 传送带拖动放置
 	if (isPlacingBelt)
 	{
+		placeBeltFeedback = false;
 		// 如果鼠标进入一个新的格子，则 isDirectionChanged 重置为 false，默认格子为空
 		if (!beltList.empty())
 		{
@@ -302,7 +294,11 @@ void GameMap::mouseMoveEvent(QMouseEvent* event)
 		for (auto it = mineralList.begin(); it != mineralList.end();)
 		{
 			Mineral* mineral = *it;
-			if (mineral->geometry().contains(newMousePosition))
+			if (mineral == nullptr)
+			{
+				break;
+			}
+			else if (mineral != nullptr && mineral->geometry().contains(newMousePosition))
 			{
 				mineral->hide();
 				mineral->update();
@@ -326,6 +322,7 @@ void GameMap::mousePressEvent(QMouseEvent* event)
 		if (canPlaceBelt)
 		{
 			isPlacingBelt = true;
+			placeBeltFeedback = true;
 			placeBeltAt(event->pos());
 		}
 		if (canPlaceMiner)
@@ -374,6 +371,7 @@ void GameMap::mouseReleaseEvent(QMouseEvent* event)
 // 右键单击事件：删除的具体操作
 void GameMap::rightClicked(Device* device)
 {
+	qDebug() << "Right clicked!";
 	device->hide();
 	currentMap.devices[device->getX() / GRID_SIZE][device->getY() / GRID_SIZE] = nullptr;
 	device->deleteLater();
@@ -434,7 +432,6 @@ void GameMap::placeBeltAt(const QPoint& pos)
 	connect(newBelt, &Belt::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
 	currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newBelt; // 加入地图的 devices
 	beltList.append(newBelt); // 记录传送带的指针
-	qDebug() << "BeltList size: " << beltList.size();
 	update();
 }
 
@@ -459,7 +456,16 @@ void GameMap::placeMinerAt(const QPoint& pos)
 		update();
 		return;
 	}
+
 	Miner* newMiner = new Miner(&currentMap.devices, this);
+	if (maps[0].cycleMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE)))
+	{
+		newMiner->setMineralType(CYCLE_MINE);
+	}
+	else if (maps[0].rectMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE)))
+	{
+		newMiner->setMineralType(RECT_MINE);
+	}
 	newMiner->setPosition(pixelX, pixelY);
 	newMiner->setRotationState(rotationState);
 	connect(newMiner, &Miner::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
@@ -555,7 +561,7 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 	}
 
 	// 左边缘
-	if (pixelInGridX <= 3 && (rotationState == _W || rotationState == _S))
+	if (pixelInGridX <= EDGE_SIZE && (rotationState == _W || rotationState == _S))
 	{
 		if (rotationState == _W)
 		{
@@ -572,7 +578,7 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 	}
 
 	// 右边缘
-	else if (pixelInGridX >= GRID_SIZE - 3 && (rotationState == _W || rotationState == _S))
+	else if (pixelInGridX >= GRID_SIZE - EDGE_SIZE && (rotationState == _W || rotationState == _S))
 	{
 		if (rotationState == _W)
 		{
@@ -589,7 +595,7 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 	}
 
 	// 上边缘
-	else if (pixelInGridY <= 3 && (rotationState == _D || rotationState == _A))
+	else if (pixelInGridY <= EDGE_SIZE && (rotationState == _D || rotationState == _A))
 	{
 		if (rotationState == _D)
 		{
@@ -606,7 +612,7 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 	}
 
 	// 下边缘
-	else if (pixelInGridY >= GRID_SIZE - 3 && (rotationState == _D || rotationState == _A))
+	else if (pixelInGridY >= GRID_SIZE - EDGE_SIZE && (rotationState == _D || rotationState == _A))
 	{
 		if (rotationState == _D)
 		{
@@ -627,6 +633,7 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 void GameMap::onNewMineralGenerated(Mineral* mineral)
 {
 	QPoint mineralGridPos(mineral->getX() / GRID_SIZE, mineral->getY() / GRID_SIZE); // 矿物所在的格子坐标
+	connect(mineral, &Mineral::deliveredToHub, hub, &Hub::addMinerals);
 	for (Belt* belt : beltList) // 遍历传送带列表，找到矿物所在的格子
 	{
 		int beltGridX = belt->getX() / GRID_SIZE;
@@ -653,7 +660,7 @@ bool GameMap::checkEmptyGrid(int gridX, int gridY)
 		|| currentMap.rectMines.contains(QPoint(gridX, gridY))
 		|| currentMap.barriers.contains(QPoint(gridX, gridY))
 		|| currentMap.hubSmall.contains(QPoint(gridX, gridY))
-		|| currentMap.devices[gridX / GRID_SIZE][gridY / GRID_SIZE] != nullptr)
+		|| currentMap.devices[gridX][gridY] != nullptr)
 	{
 		return false;
 	}
