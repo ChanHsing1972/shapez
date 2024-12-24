@@ -110,11 +110,15 @@ void GameMap::initializeMapA(MapData& mapA)
 	mapA.barriers.append(QPoint(2, 5));
 	mapA.barriers.append(QPoint(9, 9));
 	mapA.barriers.append(QPoint(20, 7));
+
+	hub = new Hub(this);
+	hub->setPosition((WINDOW_WIDTH / GRID_SIZE - 2) / 2 * GRID_SIZE, (WINDOW_HEIGHT / GRID_SIZE - 2) / 2 * GRID_SIZE);
 	for (int i = 0; i <= 1; i++)
 	{
 		for (int j = 0; j <= 1; j++)
 		{
 			mapA.hubSmall.append(QPoint((WINDOW_WIDTH / GRID_SIZE - 2) / 2 + i, (WINDOW_HEIGHT / GRID_SIZE - 2) / 2 + j));
+			mapA.devices[(WINDOW_WIDTH / GRID_SIZE - 2) / 2 + i][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2 + j] = hub;
 		}
 	}
 }
@@ -182,8 +186,6 @@ void GameMap::cacheStaticMap()
 	int hubSmallX = currentMap.hubSmall[0].x() * GRID_SIZE;
 	int hubSmallY = currentMap.hubSmall[0].y() * GRID_SIZE;
 	painter.drawPixmap(hubSmallX, hubSmallY, hubSmallImage.scaled(GRID_SIZE * 2, GRID_SIZE * 2, Qt::KeepAspectRatio));
-	hub = new Hub(this);
-	hub->setPosition(hubSmallX, hubSmallY); // 根据实际坐标设置
 }
 
 // 绘制地图
@@ -650,7 +652,6 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 void GameMap::onNewMineralGenerated(Mineral* mineral)
 {
 	QPoint mineralGridPos(mineral->getX() / GRID_SIZE, mineral->getY() / GRID_SIZE); // 矿物所在的格子坐标
-	connect(mineral, &Mineral::deliveredToHub, hub, &Hub::addMinerals);
 	for (Belt* belt : beltList) // 遍历传送带列表，找到矿物所在的格子
 	{
 		int beltGridX = belt->getX() / GRID_SIZE;

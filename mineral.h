@@ -25,6 +25,7 @@ public:
 	void stopMoving();
 	int getX() const;
 	int getY() const;
+	int mineralType;
 
 protected:
 	void paintEvent(QPaintEvent* event) override;
@@ -36,7 +37,6 @@ private:
 	int pixelX, pixelY;
 	int minerDirection;
 	int direction;
-	int mineralType;
 	QPixmap mineralImage;
 	QTimer* moveTimer;
 	QTimer* checkTimer;
@@ -46,6 +46,7 @@ private:
 	bool checkIfAtHub();
 	bool checkIfAtCutter();
 	bool checkIfAtTrash();
+	bool isMineral(int gridX, int gridY);
 	int getNextGridX(int gridX);
 	int getNextGridY(int gridY);
 

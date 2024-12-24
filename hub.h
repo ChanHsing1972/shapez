@@ -11,19 +11,17 @@
 #include "device.h"
 #include "mineral.h"
 
-class Hub : public QWidget
+class Hub : public Device
 {
 	Q_OBJECT
 
 public:
 	explicit Hub(QWidget* parent = nullptr);
 	void setPosition(int x, int y);
+	void increaseCount(); // 增加计数的方法
 
 protected:
 	void paintEvent(QPaintEvent* event) override;
-
-public slots:
-	void addMinerals();
 
 private:
 	void updateIcon();
