@@ -2,7 +2,6 @@
 
 Miner::Miner(QVector<QVector<Device*>>* devices, QWidget* parent)
 	: Device(parent), devices(devices), pixmap(4)
-
 {
 	setFixedSize(GRID_SIZE, GRID_SIZE);
 

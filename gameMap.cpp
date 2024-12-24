@@ -371,9 +371,25 @@ void GameMap::mouseReleaseEvent(QMouseEvent* event)
 // 右键单击事件：删除的具体操作
 void GameMap::rightClicked(Device* device)
 {
-	qDebug() << "Right clicked!";
+	qDebug() << "Right clicked! Deleted" << device;;
 	device->hide();
 	currentMap.devices[device->getX() / GRID_SIZE][device->getY() / GRID_SIZE] = nullptr;
+
+	int gridX = device->getX() / GRID_SIZE;
+	int gridY = device->getY() / GRID_SIZE;
+	// 处理 Cutter 占用的第二个格子
+	if (Cutter* cutter = dynamic_cast<Cutter*>(device))
+	{
+		if (cutter->getRotationState() == _W || cutter->getRotationState() == _S)
+		{
+			currentMap.devices[gridX + 1][gridY] = nullptr;
+		}
+		else if (cutter->getRotationState() == _D || cutter->getRotationState() == _A)
+		{
+			currentMap.devices[gridX][gridY + 1] = nullptr;
+		}
+	}
+
 	device->deleteLater();
 }
 
@@ -400,6 +416,7 @@ void GameMap::deleteDeviceAt(const QPoint& pos)
 	int gridX = pos.x() / GRID_SIZE;
 	int gridY = pos.y() / GRID_SIZE;
 	Device* device = currentMap.devices[gridX][gridY];
+	qDebug() << "Device at (" << gridX << ", " << gridY << ") is " << device;
 	if (device)
 	{
 		rightClicked(device);
@@ -498,7 +515,7 @@ void GameMap::placeCutterAt(const QPoint& pos)
 		update();
 		return;
 	}
-	Cutter* newCutter = new Cutter(this);
+	Cutter* newCutter = new Cutter(&currentMap.devices, this);
 	newCutter->setPosition(pixelX, pixelY);
 	newCutter->setRotationState(rotationState);
 	connect(newCutter, &Cutter::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号

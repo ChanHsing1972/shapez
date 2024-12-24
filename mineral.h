@@ -44,11 +44,15 @@ private:
 	void checkForBelt();
 	bool isMineralAhead();
 	bool checkIfAtHub();
+	bool checkIfAtCutter();
+	bool checkIfAtTrash();
 	int getNextGridX(int gridX);
 	int getNextGridY(int gridY);
 
 signals:
 	void deliveredToHub();
+	void newMineralGenerated(Mineral* mineral);
+
 };
 
 #endif // MINERAL_H

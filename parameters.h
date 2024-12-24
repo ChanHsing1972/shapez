@@ -37,9 +37,13 @@
 #define _W_D 11
 
 // ¿óÎï
-#define CYCLE_MINE 1
+#define CYCLE_MINE 0
+#define RECT_MINE 1
+#define CYCLE_MINE_L 2
+#define CYCLE_MINE_R 3
+#define RECT_MINE_L 4
+#define RECT_MINE_R 5
 #define CYCLE_MINE_VALUE 10
-#define RECT_MINE 0
 #define RECT_MINE_VALUE 50
 #define MINERAL_SIZE GRID_SIZE/1.5
 
