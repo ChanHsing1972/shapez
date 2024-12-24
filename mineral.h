@@ -46,7 +46,7 @@ private:
 	bool checkIfAtHub();
 	bool checkIfAtCutter();
 	bool checkIfAtTrash();
-	bool isMineral(int gridX, int gridY);
+	bool isMineralAt(int gridX, int gridY);
 	int getNextGridX(int gridX);
 	int getNextGridY(int gridY);
 

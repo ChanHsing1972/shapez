@@ -30,8 +30,3 @@ void Cutter::mousePressEvent(QMouseEvent* event)
 {
 	Device::mousePressEvent(event); // 调用基类处理
 }
-
-int Cutter::getRotationState()
-{
-	return rotationState;
-}

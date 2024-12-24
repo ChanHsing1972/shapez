@@ -11,7 +11,6 @@ public:
 	explicit Cutter(QVector<QVector<Device*>>* devices, QWidget* parent = nullptr);
 	void paintEvent(QPaintEvent* event) override;
 	void mousePressEvent(QMouseEvent* event) override;
-	int getRotationState();
 
 private:
 	QVector<QPixmap> pixmap;

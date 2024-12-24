@@ -18,7 +18,7 @@ class Hub : public Device
 public:
 	explicit Hub(QWidget* parent = nullptr);
 	void setPosition(int x, int y);
-	void increaseCount(); // 增加计数的方法
+	void increaseCount(); // 增加计数
 
 protected:
 	void paintEvent(QPaintEvent* event) override;

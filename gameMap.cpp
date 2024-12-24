@@ -370,16 +370,21 @@ void GameMap::mouseReleaseEvent(QMouseEvent* event)
 	}
 }
 
-// 右键单击事件：删除的具体操作
+// 右键信号槽：删除的具体操作
 void GameMap::rightClicked(Device* device)
 {
-	qDebug() << "Right clicked! Deleted" << device;;
+	// 如果是 Hub，则不删除
+	if (Hub* hub = dynamic_cast<Hub*>(device))
+	{
+		return;
+	}
+
 	device->hide();
 	currentMap.devices[device->getX() / GRID_SIZE][device->getY() / GRID_SIZE] = nullptr;
 
+	// 处理 Cutter 占用的第二个格子
 	int gridX = device->getX() / GRID_SIZE;
 	int gridY = device->getY() / GRID_SIZE;
-	// 处理 Cutter 占用的第二个格子
 	if (Cutter* cutter = dynamic_cast<Cutter*>(device))
 	{
 		if (cutter->getRotationState() == _W || cutter->getRotationState() == _S)
@@ -418,7 +423,6 @@ void GameMap::deleteDeviceAt(const QPoint& pos)
 	int gridX = pos.x() / GRID_SIZE;
 	int gridY = pos.y() / GRID_SIZE;
 	Device* device = currentMap.devices[gridX][gridY];
-	qDebug() << "Device at (" << gridX << ", " << gridY << ") is " << device;
 	if (device)
 	{
 		rightClicked(device);
