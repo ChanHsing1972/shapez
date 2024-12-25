@@ -17,9 +17,18 @@ public:
 signals:
 	void startGame(); // 开始游戏信号
 
+protected:
+	bool eventFilter(QObject* watched, QEvent* event) override;
+
+private:
+	QPushButton* startButton;
+	QPushButton* exitButton;
+
 private slots:
 	void onStartClicked(); // 开始按钮点击槽
 	void onExitClicked(); // 退出按钮点击槽
+
+
 };
 
 #endif

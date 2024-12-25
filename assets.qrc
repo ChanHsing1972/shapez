@@ -74,5 +74,12 @@
         <file>assets/images/trash_S.png</file>
         <file>assets/images/trash_W.png</file>
         <file>assets/images/win.png</file>
+        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Bold.otf</file>
+        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-ExtraLight.otf</file>
+        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Heavy.otf</file>
+        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Light.otf</file>
+        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Medium.otf</file>
+        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Normal.otf</file>
+        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Regular.otf</file>
     </qresource>
 </RCC>

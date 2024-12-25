@@ -20,11 +20,11 @@ public:
 	explicit Mineral(QVector<QVector<Device*>>* devices, int mineralType, QWidget* parent = nullptr);
 	void setPosition(int x, int y);
 	void setDirection(int direction);
-	int getDirection();
-	void startMoving();
-	void stopMoving();
+	int getDirection() const;
 	int getX() const;
 	int getY() const;
+	void startMoving();
+	void stopMoving();
 	int mineralType;
 
 protected:
@@ -43,6 +43,7 @@ private:
 	QVector<QVector<Device*>>* devices;
 	void checkForBelt();
 	bool isMineralAhead();
+	bool isBeltAhead();
 	bool checkIfAtHub();
 	bool checkIfAtCutter();
 	bool checkIfAtTrash();

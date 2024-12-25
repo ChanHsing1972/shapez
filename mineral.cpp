@@ -16,29 +16,16 @@ Mineral::Mineral(QVector<QVector<Device*>>* devices, int mineralType, QWidget* p
 		break;
 	}
 
-	switch (mineralType)
-	{
-	case CYCLE_MINE:
-		mineralImage.load("./assets/images/cycle.png");
-		break;
-	case RECT_MINE:
-		mineralImage.load("./assets/images/rect.png");
-		break;
-	case CYCLE_MINE_L:
-		mineralImage.load("./assets/images/left_cycle.png");
-		break;
-	case CYCLE_MINE_R:
-		mineralImage.load("./assets/images/right_cycle.png");
-		break;
-	case RECT_MINE_L:
-		mineralImage.load("./assets/images/left_rect.png");
-		break;
-	case RECT_MINE_R:
-		mineralImage.load("./assets/images/right_rect.png");
-		break;
-	default:
-		break;
-	}
+	// 使用映射加载矿物图片
+	QMap<int, QString> mineralImages = {
+			{CYCLE_MINE,    "./assets/images/cycle.png"},
+			{RECT_MINE,     "./assets/images/rect.png"},
+			{CYCLE_MINE_L,  "./assets/images/left_cycle.png"},
+			{CYCLE_MINE_R,  "./assets/images/right_cycle.png"},
+			{RECT_MINE_L,   "./assets/images/left_rect.png"}, // 虽然题目要求不能切割方形矿物，但仍然添加了切割方形矿物的接口，仅供娱乐
+			{RECT_MINE_R,   "./assets/images/right_rect.png"}
+	};
+	mineralImage.load(mineralImages.value(mineralType));
 
 	moveTimer = new QTimer(this);
 	checkTimer = new QTimer(this);
@@ -53,25 +40,10 @@ void Mineral::setPosition(int x, int y)
 	move(pixelX, pixelY);
 }
 
-int Mineral::getX() const
-{
-	return pixelX;
-}
-
-int Mineral::getY() const
-{
-	return pixelY;
-}
-
-void Mineral::setDirection(int dir)
-{
-	minerDirection = dir;
-}
-
-int Mineral::getDirection()
-{
-	return minerDirection;
-}
+int Mineral::getX() const { return pixelX; }
+int Mineral::getY() const { return pixelY; }
+void Mineral::setDirection(int dir) { minerDirection = dir; }
+int Mineral::getDirection() const { return minerDirection; }
 
 void Mineral::paintEvent(QPaintEvent* event)
 {
@@ -110,7 +82,7 @@ void Mineral::moving()
 	// 首先检查矿物是否在地图范围内
 	if (pixelX < 0 || pixelY < 0 || pixelX >= WINDOW_WIDTH || pixelY >= WINDOW_HEIGHT)
 	{
-		qDebug() << "STOP 0";
+		qDebug() << "STOP 0: Out of bonnd!";
 		return;
 	}
 
@@ -135,7 +107,7 @@ void Mineral::moving()
 	// 如果矿物不在这两个设备上，则停止移动
 	else
 	{
-		qDebug() << "STOP 1";
+		qDebug() << "STOP 1: Not on belt or miner!";
 		stopMoving(); // 停止移动
 		checkTimer->start(CHECK_FREQUENCY); // 开始循环检查矿物前方是否有新传送带
 		return;
@@ -147,15 +119,6 @@ void Mineral::moving()
 		move(pixelX, pixelY);
 		show();
 		update();
-		return;
-	}
-
-	// 检查矿物前方是否有矿物，实现矿物之间的碰撞检测
-	if (isMineralAhead())
-	{
-		qDebug() << "STOP 2";
-		stopMoving(); // 停止移动
-		checkTimer->start(CHECK_FREQUENCY); // 开始循环检查矿物前方是否有新传送带
 		return;
 	}
 
@@ -174,13 +137,11 @@ void Mineral::moving()
 		return;
 	}
 
-	// 检查矿物前方是否有传送带，如果没有，则停止移动，确保矿物最后停留在传送带上
-	int nextGridX = getNextGridX(gridX);
-	int nextGridY = getNextGridY(gridY);
-	if ((nextGridX < 0 || nextGridY < 0 || nextGridX >= devices->size() || nextGridY >= (*devices)[0].size()
-		|| !dynamic_cast<Belt*>((*devices)[nextGridX][nextGridY])) && (offsetX == 0 && offsetY == 0))
+	// 1. 检查矿物前方是否有矿物，实现矿物之间的碰撞检测
+	// 2. 检查矿物前方是否有传送带，如果没有，则停止移动，确保矿物最后停留在传送带上
+	if (isMineralAhead() || !isBeltAhead())
 	{
-		qDebug() << "STOP 3";
+
 		stopMoving(); // 停止移动
 		checkTimer->start(CHECK_FREQUENCY); // 开始循环检查矿物前方是否有新传送带
 		return;
@@ -235,6 +196,7 @@ bool Mineral::isMineralAhead()
 	// 检查地图边界
 	if (nextGridX < 0 || nextGridY < 0 || nextGridX >= WINDOW_WIDTH / GRID_SIZE || nextGridY >= WINDOW_HEIGHT / GRID_SIZE)
 	{
+		qDebug() << "STOP 2: Mineral ahead!";
 		return true; // 前方无路，视为有障碍
 	}
 
@@ -245,10 +207,37 @@ bool Mineral::isMineralAhead()
 			&& (mineral->getY() / GRID_SIZE == nextGridY)
 			&& offsetX == 0 && offsetY == 0)
 		{
+			qDebug() << "STOP 2: Mineral ahead!";
 			return true;
 		}
 	}
 	return false;
+}
+
+// 检查前方是否有传送带
+bool Mineral::isBeltAhead()
+{
+	int offsetX = pixelX % GRID_SIZE; // 矿物在格子里的偏移量（单位：像素）
+	int offsetY = pixelY % GRID_SIZE; // 矿物在格子里的偏移量（单位：像素）
+	int nextGridX = getNextGridX(pixelX / GRID_SIZE);
+	int nextGridY = getNextGridY(pixelY / GRID_SIZE);
+
+	// 检查地图边界
+	if (nextGridX < 0 || nextGridY < 0 || nextGridX >= WINDOW_WIDTH / GRID_SIZE || nextGridY >= WINDOW_HEIGHT / GRID_SIZE)
+	{
+		qDebug() << "STOP 3: No belt ahead!";
+		return false; // 前方无路，视为无传送带
+	}
+
+	if ((offsetX == 0 && offsetY == 0))
+	{
+		if (!dynamic_cast<Belt*>((*devices)[nextGridX][nextGridY]))
+		{
+			qDebug() << "STOP 3: No belt ahead!";
+			return false;
+		}
+	}
+	return true;
 }
 
 // 检查矿物是否到达交付中心
@@ -319,6 +308,10 @@ bool Mineral::checkIfAtCutter()
 	{
 		if (offsetX == 0 && offsetY == 0 && direction == cutter->getRotationState())
 		{
+			if (mineralType == RECT_MINE)
+			{
+				return false;
+			}
 			// directions 存储方向对应的偏移量
 			const std::map<int, std::pair<int, int>> directions = {
 				{_W, {1, 0}},
