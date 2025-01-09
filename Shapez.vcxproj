@@ -107,6 +107,8 @@
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
     <ClCompile Include="mineral.cpp" />
+    <ClCompile Include="parameters.cpp" />
+    <ClCompile Include="shopPage.cpp" />
     <ClCompile Include="trash.cpp" />
     <ClCompile Include="welcomePage.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
@@ -126,6 +128,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="shopPage.h" />
     <QtMoc Include="trash.h" />
     <QtMoc Include="welcomePage.h" />
     <QtMoc Include="gameMap.h" />

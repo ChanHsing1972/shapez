@@ -79,6 +79,10 @@ beltToPlace(12), minerToPlace(4), cutterToPlace(4), trashToPlace(4)
 	connect(minerButton, &QPushButton::clicked, this, [this]() { onButtonClicked("Miner"); });
 	connect(cutterButton, &QPushButton::clicked, this, [this]() { onButtonClicked("Cutter"); });
 	connect(trashButton, &QPushButton::clicked, this, [this]() { onButtonClicked("Trash"); });
+	connect(shopButton, &QPushButton::clicked, this, [this]() {
+		ShopPage* shopPage = new ShopPage(currentMap.devices, this);
+		shopPage->exec();
+		});
 	connect(helpButton, &QPushButton::clicked, this, [this]() {
 		HelpPage* helpPage = new HelpPage(this);
 		helpPage->exec();
@@ -655,6 +659,7 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 // 生成新的矿物，然后将其传送到传送带上
 void GameMap::onNewMineralGenerated(Mineral* mineral)
 {
+	qDebug() << "On New mineral generated!";
 	QPoint mineralGridPos(mineral->getX() / GRID_SIZE, mineral->getY() / GRID_SIZE); // 矿物所在的格子坐标
 	for (Belt* belt : beltList) // 遍历传送带列表，找到矿物所在的格子
 	{
@@ -670,6 +675,7 @@ void GameMap::onNewMineralGenerated(Mineral* mineral)
 			|| (QPoint(beltGridX + 1, beltGridY) == mineralGridPos && mineral->getDirection() == _A
 				&& (belt->getRotationState() == _A || belt->getRotationState() == _A_S || belt->getRotationState() == _A_W)))
 		{
+			qDebug() << "Mineral start moving!";
 			mineral->startMoving();
 		}
 	}

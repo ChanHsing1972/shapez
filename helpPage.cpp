@@ -1,15 +1,8 @@
 #include "helpPage.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QFont>
-#include <QDesktopServices>
-#include <QSpacerItem>
 
 HelpPage::HelpPage(QWidget* parent) : QDialog(parent) {
 	setWindowTitle("帮助");
 	setFixedSize(900, 1200);
-
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 
@@ -47,8 +40,11 @@ HelpPage::HelpPage(QWidget* parent) : QDialog(parent) {
 	);
 
 	// 设置字体和边距
-	QFont font("Microsoft YaHei", 12); // 设置为微软雅黑，字号为12
-	helpTextLabel->setFont(font);
+	int fontYaHei = QFontDatabase::addApplicationFont("./assets/fonts/微软雅黑.ttc");
+	QString fontYaHeiFamily = QFontDatabase::applicationFontFamilies(fontYaHei).at(0);
+	QFont customFontYaHei(fontYaHeiFamily, 12);
+
+	helpTextLabel->setFont(customFontYaHei);
 	helpTextLabel->setContentsMargins(0, 0, 0, 0); // 设置边距
 	helpTextLabel->setOpenExternalLinks(true); // 允许打开超链接
 
@@ -57,10 +53,16 @@ HelpPage::HelpPage(QWidget* parent) : QDialog(parent) {
 	// 添加一个弹性空间，将内容推至顶部
 	layout->addSpacerItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
+
 	// 添加关闭按钮
 	QPushButton* closeButton = new QPushButton("关闭", this);
+
+	int fontPingFang = QFontDatabase::addApplicationFont("./assets/fonts/PingFang-Regular.ttf");
+	QString fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
+	QFont customFontPingFang(fontPingFangFamily);
+
+	closeButton->setFont(customFontPingFang);
 	closeButton->setFixedSize(100, 40);
-	closeButton->setFont(QFont("等线"));
 	closeButton->setStyleSheet(
 		"QPushButton {"
 		"   font-size: 24px;"

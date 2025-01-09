@@ -73,6 +73,12 @@
     <ClCompile Include="mineral.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="shopPage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="parameters.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="parameters.h">
@@ -111,6 +117,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="hub.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="shopPage.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

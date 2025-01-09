@@ -18,6 +18,7 @@
 #include "cutter.h"
 #include "trash.h"
 #include "helpPage.h"
+#include "shopPage.h"
 #include "mineral.h"
 #include "hub.h"
 

@@ -17,8 +17,12 @@ void Hub::paintEvent(QPaintEvent* event)
 	QPainter painter(this);
 
 	// 在图标上绘制矿物数量
+	int fontImpact = QFontDatabase::addApplicationFont("./assets/fonts/impact.ttf");
+	QString fontImpactFamily = QFontDatabase::applicationFontFamilies(fontImpact).at(0);
+	QFont customFontImpact(fontImpactFamily, 18);
+
+	painter.setFont(customFontImpact);
 	painter.setPen(Qt::darkGray);
-	painter.setFont(QFont("Impact", 18));
 	painter.drawText(rect(), Qt::AlignCenter, QString::number(mineralCount));
 }
 
@@ -32,4 +36,15 @@ void Hub::updateIcon()
 {
 	// 触发重绘事件，更新图标
 	update();
+}
+
+void Hub::reduceMineralCount(int count)
+{
+	mineralCount -= count;
+	updateIcon();
+}
+
+int Hub::getMineralCount()
+{
+	return mineralCount;
 }

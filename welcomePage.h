@@ -6,6 +6,9 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QApplication>
+#include <QGraphicsDropShadowEffect>
+#include <QPropertyAnimation>
+#include <QEvent>
 #include "parameters.h"
 
 class WelcomePage : public QWidget {
@@ -27,8 +30,6 @@ private:
 private slots:
 	void onStartClicked(); // 开始按钮点击槽
 	void onExitClicked(); // 退出按钮点击槽
-
-
 };
 
 #endif

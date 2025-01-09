@@ -1,8 +1,5 @@
 #include "welcomePage.h"
-#include <QGraphicsDropShadowEffect>
-#include <QPropertyAnimation>
-#include <QVBoxLayout>
-#include <QEvent>
+#include <QFontDatabase>
 
 WelcomePage::WelcomePage(QWidget* parent) : QWidget(parent)
 {
@@ -18,31 +15,48 @@ WelcomePage::WelcomePage(QWidget* parent) : QWidget(parent)
 	exitButton->setFixedSize(270, 60);
 
 	startButton->setText("开始游戏");
-	exitButton->setText("退出");
+	exitButton->setText("退      出");
 
-	startButton->setFont(QFont("等线"));
-	exitButton->setFont(QFont("等线"));
+	int fontPingFang = QFontDatabase::addApplicationFont("./assets/fonts/PingFang-Regular.ttf");
+	QString fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
+	QFont customFontPingFang(fontPingFangFamily);
 
-	// 设置按钮样式（移除了不支持的属性）
-	QString buttonStyle = R"(
+	startButton->setFont(customFontPingFang);
+	exitButton->setFont(customFontPingFang);
+
+	startButton->setStyleSheet(R"(
         QPushButton {
             font-size: 28px;
-            background-color: #2C9E29;
+            background-color: #008700;
             color: white;
             border-radius: 25px;
         }
         QPushButton:hover {
-            background-color: #2C9E29;
+            background-color: #008700;
         }
         QPushButton:pressed {
-            background-color: #385A40;
+            background-color: #297E33;
             padding-left: 3px;
             padding-top: 3px;
         }
-    )";
+    )");
 
-	startButton->setStyleSheet(buttonStyle);
-	exitButton->setStyleSheet(buttonStyle);
+	exitButton->setStyleSheet(R"(
+        QPushButton {
+            font-size: 28px;
+            background-color: #0045FF;
+            color: white;
+            border-radius: 25px;
+        }
+        QPushButton:hover {
+            background-color: #0045FF;
+        }
+        QPushButton:pressed {
+            background-color: #2A67D9;
+            padding-left: 3px;
+            padding-top: 3px;
+        }
+    )");
 
 	layout->setSpacing(20); // 按钮之间的间距
 	layout->setContentsMargins(10, 10, 10, 10); // 窗口边缘的间距

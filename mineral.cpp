@@ -80,7 +80,7 @@ void Mineral::moving()
 	bool directionChanged = false; // 标记方向是否改变
 
 	// 首先检查矿物是否在地图范围内
-	if (pixelX < 0 || pixelY < 0 || pixelX >= WINDOW_WIDTH || pixelY >= WINDOW_HEIGHT)
+	if (pixelX <= 0 || pixelY <= 0 || pixelX >= WINDOW_WIDTH || pixelY >= WINDOW_HEIGHT)
 	{
 		qDebug() << "STOP 0: Out of bonnd!";
 		return;
@@ -104,12 +104,19 @@ void Mineral::moving()
 			}
 		}
 	}
-	// 如果矿物不在这两个设备上，则停止移动
+	// 如果矿物不在这两个设备上，则直接删除
 	else
 	{
 		qDebug() << "STOP 1: Not on belt or miner!";
-		stopMoving(); // 停止移动
-		checkTimer->start(CHECK_FREQUENCY); // 开始循环检查矿物前方是否有新传送带
+		hide(); // 隐藏矿物
+		// 从 mineralList 中移除矿物对象
+		auto it = std::find_if(GameMap::mineralList.begin(), GameMap::mineralList.end(),
+			[this](Mineral* m) { return m == this; });
+		if (it != GameMap::mineralList.end())
+		{
+			GameMap::mineralList.erase(it); // 从容器中移除对象
+		}
+		this->deleteLater(); // 删除矿物
 		return;
 	}
 
@@ -205,9 +212,10 @@ bool Mineral::isMineralAhead()
 	{
 		if (mineral != this && (mineral->getX() / GRID_SIZE == nextGridX)
 			&& (mineral->getY() / GRID_SIZE == nextGridY)
-			&& offsetX == 0 && offsetY == 0)
+			&& offsetX == 0 && offsetY == 0 && mineral->getX() % GRID_SIZE == 0 && mineral->getY() % GRID_SIZE == 0)
 		{
 			qDebug() << "STOP 2: Mineral ahead!";
+			qDebug() << nextGridX << " " << nextGridY;
 			return true;
 		}
 	}
@@ -344,6 +352,11 @@ bool Mineral::checkIfAtCutter()
 			}
 
 			// 切割机未堵塞，可以切割矿物
+			// 切割机切割矿物是一个耗时操作，需要等待数秒
+			QEventLoop loop;
+			QTimer::singleShot(CUTTER_SPEED, &loop, &QEventLoop::quit);
+			loop.exec();
+
 			Mineral* halfMineral1 = nullptr;
 			Mineral* halfMineral2 = nullptr;
 			qDebug() << "mineralType:" << mineralType;
@@ -399,6 +412,10 @@ int Mineral::getNextGridX(int gridX)
 		nextGridX++;
 		break;
 	}
+	if (nextGridX < 0 || nextGridX >= WINDOW_WIDTH / GRID_SIZE)
+	{
+		return 0;
+	}
 	return nextGridX;
 }
 
@@ -413,6 +430,10 @@ int Mineral::getNextGridY(int gridY)
 	case _S:case _A_S:case _D_S:
 		nextGridY++;
 		break;
+	}
+	if (nextGridY < 0 || nextGridY >= WINDOW_HEIGHT / GRID_SIZE)
+	{
+		return 0;
 	}
 	return nextGridY;
 }

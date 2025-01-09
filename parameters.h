@@ -1,6 +1,10 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
+#include <QFontDatabase>
+#include <QFont>
+
+
 // 窗口
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1200
@@ -51,8 +55,10 @@
 #define GRAY 200, 200, 200
 
 // 参数
-#define BELT_SPEED GRID_SIZE/30 // 1格/time
-#define MOVE_FREQUENCY 10 // 10ms/time
+extern int BELT_SPEED;
+extern int MINER_SPEED;
+extern int CUTTER_SPEED;
+#define MOVE_FREQUENCY 10
 #define CHECK_FREQUENCY 100
 #define EDGE_SIZE 5
 

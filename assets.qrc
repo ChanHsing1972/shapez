@@ -63,7 +63,6 @@
         <file>assets/images/return.png</file>
         <file>assets/images/right_cycle.png</file>
         <file>assets/images/shop.png</file>
-        <file>assets/images/theme-full.mp3</file>
         <file>assets/images/trash_A.png</file>
         <file>assets/images/trash_blue_A.png</file>
         <file>assets/images/trash_blue_D.png</file>
@@ -74,12 +73,9 @@
         <file>assets/images/trash_S.png</file>
         <file>assets/images/trash_W.png</file>
         <file>assets/images/win.png</file>
-        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Bold.otf</file>
-        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-ExtraLight.otf</file>
-        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Heavy.otf</file>
-        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Light.otf</file>
-        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Medium.otf</file>
-        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Normal.otf</file>
-        <file>assets/fonts/SourceHanSansCN/SourceHanSansCN-Regular.otf</file>
+        <file>assets/music/theme-full.mp3</file>
+        <file>assets/fonts/PingFang-Regular.ttf</file>
+        <file>assets/fonts/微软雅黑.ttc</file>
+        <file>assets/fonts/impact.ttf</file>
     </qresource>
 </RCC>

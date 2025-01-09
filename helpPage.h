@@ -7,7 +7,10 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QWidget>
-#include <QPushButton>
+#include <QFont>
+#include <QDesktopServices>
+#include <QSpacerItem>
+#include <QFontDatabase>
 
 class HelpPage : public QDialog {
 	Q_OBJECT
