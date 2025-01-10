@@ -4,6 +4,7 @@ Miner::Miner(QVector<QVector<Device*>>* devices, QWidget* parent)
 	: Device(parent), devices(devices), pixmap(4)
 {
 	setFixedSize(GRID_SIZE, GRID_SIZE);
+	typeID = 1;
 
 	pixmap[_W].load("./assets/images/miner_W.png");
 	pixmap[_D].load("./assets/images/miner_D.png");

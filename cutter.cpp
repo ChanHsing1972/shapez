@@ -3,6 +3,8 @@
 Cutter::Cutter(QVector<QVector<Device*>>* devices, QWidget* parent)
 	: Device(parent), devices(devices), pixmap(4)
 {
+	typeID = 2;
+
 	pixmap[_W].load("./assets/images/cutter_W.png");
 	pixmap[_D].load("./assets/images/cutter_D.png");
 	pixmap[_S].load("./assets/images/cutter_S.png");

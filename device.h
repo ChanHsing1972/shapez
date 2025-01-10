@@ -21,11 +21,13 @@ public:
 	void setRotationState(int state); // 设置旋转方向
 	int getX(); // 获取 X 坐标（单位：格）
 	int getY(); // 获取 Y 坐标（单位：格）
-	int getRotationState();
+	int getRotationState(); // 获取旋转状态
+	int getTypeID(); // 获取设备类型
 
 protected:
 	int posX, posY; // 设备位置
 	int rotationState = 0; // 旋转状态
+	int typeID; // 设备类型
 
 signals:
 	void rightClicked(Device* device);

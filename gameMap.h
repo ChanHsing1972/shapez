@@ -13,6 +13,9 @@
 #include <QApplication>
 #include <QScreen>
 #include <QSoundEffect>
+#include <QFile>
+#include <QDataStream>
+#include <QSettings>
 #include "parameters.h"
 #include "belt.h"
 #include "miner.h"
@@ -22,6 +25,7 @@
 #include "shopPage.h"
 #include "mineral.h"
 #include "hub.h"
+#include "save.h"
 
 // #include "ui_gameMap.h"
 class Belt;
@@ -48,6 +52,8 @@ public:
 	GameMap(QWidget* parent = nullptr);
 	~GameMap();
 	static QVector<Mineral*> mineralList; // 全局矿物对象列表
+	void saveGame(const QString& fileName);
+	void loadGame(const QString& fileName);
 
 public slots:
 	// 控制淡入动画
@@ -133,8 +139,12 @@ private:
 	QSoundEffect* deleteSound;
 	QSoundEffect* chooseSound;
 
-	/*** 槽 ***/
+	/*** 存档 ***/
+	void createDeviceByTypeID(int typeID, int i, int j);
+	void autoSaveGame();
+	void startAutoSaveGame();
 
+	/*** 槽 ***/
 private slots:
 	// 鼠标单击某按钮后，标记为可以放下该物品
 	void onButtonClicked(QString s);

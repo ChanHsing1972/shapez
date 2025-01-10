@@ -4,6 +4,7 @@
 Belt::Belt(QWidget* parent) : Device(parent), pixmap(12)
 {
 	setFixedSize(GRID_SIZE, GRID_SIZE);
+	typeID = 0;
 
 	pixmap[_W].load("./assets/images/belt_W.png");
 	pixmap[_D].load("./assets/images/belt_D.png");

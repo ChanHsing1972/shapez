@@ -3,6 +3,7 @@
 Trash::Trash(QWidget* parent) : Device(parent), pixmap(4)
 {
 	setFixedSize(GRID_SIZE, GRID_SIZE);
+	typeID = 3;
 
 	pixmap[_W].load("./assets/images/trash_W.png");
 	pixmap[_D].load("./assets/images/trash_D.png");

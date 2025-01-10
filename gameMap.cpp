@@ -98,6 +98,11 @@ beltToPlace(12), minerToPlace(4), cutterToPlace(4), trashToPlace(4)
 		HelpPage* helpPage = new HelpPage(this);
 		helpPage->exec();
 		});
+
+	// 定时器：每隔 5min 自动保存一次
+	QTimer* autoSaveTimer = new QTimer(this);
+	connect(autoSaveTimer, &QTimer::timeout, this, &GameMap::autoSaveGame);
+	autoSaveTimer->start(300000);
 }
 
 GameMap::~GameMap() {}
@@ -719,4 +724,131 @@ void GameMap::startFadeInAnimation()
 	animation->setStartValue(0.0);
 	animation->setEndValue(1.0);
 	animation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+// 保存游戏状态到 INI 文件
+void GameMap::saveGame(const QString& fileName) {
+	QSettings settings(fileName, QSettings::IniFormat);
+
+	// 保存矿物信息
+	settings.beginGroup("Mines");
+	settings.setValue("cycleMines", QVariant::fromValue(currentMap.cycleMines));
+	settings.setValue("rectMines", QVariant::fromValue(currentMap.rectMines));
+	settings.endGroup();
+
+	// 保存障碍信息
+	settings.beginGroup("Barriers");
+	settings.setValue("barriers", QVariant::fromValue(currentMap.barriers));
+	settings.endGroup();
+
+	// 保存 Hub 信息
+	settings.beginGroup("Hub");
+	settings.setValue("hubSmall", QVariant::fromValue(currentMap.hubSmall));
+	settings.setValue("hubMineralCount", hub->getMineralCount());
+	settings.endGroup();
+
+	// 保存商店等级和设备相关属性
+	settings.beginGroup("Shop");
+	settings.setValue("minerLevel", minerLevel);
+	settings.setValue("beltLevel", beltLevel);
+	settings.setValue("cutterLevel", cutterLevel);
+	settings.setValue("beltSpeed", BELT_SPEED);
+	settings.setValue("minerSpeed", MINER_SPEED);
+	settings.setValue("cutterSpeed", CUTTER_SPEED);
+	settings.endGroup();
+
+	// 保存设备信息
+	settings.beginGroup("Devices");
+	for (int i = 0; i < currentMap.devices.size(); ++i) {
+		for (int j = 0; j < currentMap.devices[i].size(); ++j) {
+			if (currentMap.devices[i][j] != nullptr) {
+				settings.setValue(QString("device_%1_%2_type").arg(i).arg(j), currentMap.devices[i][j]->getTypeID());
+				settings.setValue(QString("device_%1_%2_rotation").arg(i).arg(j), currentMap.devices[i][j]->getRotationState());
+				qDebug() << "Device" << currentMap.devices[i][j]->getTypeID() << "saved at" << i << j;
+			}
+			else {
+				settings.setValue(QString("device_%1_%2_type").arg(i).arg(j), -1); // 空设备用 -1 表示
+				settings.setValue(QString("device_%1_%2_rotation").arg(i).arg(j), -1); // 空设备用 -1 表示
+			}
+		}
+	}
+	settings.endGroup();
+}
+
+// 从 INI 文件加载游戏状态
+void GameMap::loadGame(const QString& fileName) {
+	qDebug() << "Loading game from" << fileName;
+	QSettings settings(fileName, QSettings::IniFormat);
+
+	// 加载矿物信息
+	settings.beginGroup("Mines");
+	currentMap.cycleMines = settings.value("cycleMines").value<QVector<QPoint>>();
+	currentMap.rectMines = settings.value("rectMines").value<QVector<QPoint>>();
+	settings.endGroup();
+	qDebug() << "Mines loaded successfully!";
+
+	// 加载障碍信息
+	settings.beginGroup("Barriers");
+	currentMap.barriers = settings.value("barriers").value<QVector<QPoint>>();
+	settings.endGroup();
+	qDebug() << "Barriers loaded successfully!";
+
+	// 加载 Hub 信息
+	settings.beginGroup("Hub");
+	currentMap.hubSmall = settings.value("hubSmall").value<QVector<QPoint>>();
+	hub->setMineralCount(settings.value("hubMineralCount").toInt());
+	settings.endGroup();
+	qDebug() << "Hub loaded successfully!";
+
+	// 加载商店等级和设备相关属性
+	settings.beginGroup("Shop");
+	minerLevel = settings.value("minerLevel").toInt();
+	beltLevel = settings.value("beltLevel").toInt();
+	cutterLevel = settings.value("cutterLevel").toInt();
+	BELT_SPEED = settings.value("beltSpeed").toInt();
+	MINER_SPEED = settings.value("minerSpeed").toInt();
+	CUTTER_SPEED = settings.value("cutterSpeed").toInt();
+	settings.endGroup();
+
+	// 加载设备
+	settings.beginGroup("Devices");
+	for (int i = 0; i < currentMap.devices.size(); ++i)
+	{
+		for (int j = 0; j < currentMap.devices[i].size(); ++j)
+		{
+			int typeID = settings.value(QString("device_%1_%2_type").arg(i).arg(j), -1).toInt();
+			rotationState = settings.value(QString("device_%1_%2_rotation").arg(i).arg(j), -1).toInt();
+			if (typeID != -1)
+			{
+				// 根据类型ID创建设备并放置到地图上
+				createDeviceByTypeID(typeID, i, j);
+				qDebug() << "Device" << typeID << "loaded at" << i << j;
+			}
+		}
+	}
+	settings.endGroup();
+	qDebug() << "Devices loaded successfully!";
+
+	cacheStaticMap(); // 缓存静态背景
+	update();
+	qDebug() << "Game loaded successfully!";
+}
+
+// 根据类型ID创建设备
+void GameMap::createDeviceByTypeID(int typeID, int i, int j)
+{
+	switch (typeID)
+	{
+	case 0: placeBeltAt(QPoint(i * GRID_SIZE, j * GRID_SIZE)); break;
+	case 1: placeMinerAt(QPoint(i * GRID_SIZE, j * GRID_SIZE)); break;
+	case 2: placeCutterAt(QPoint(i * GRID_SIZE, j * GRID_SIZE)); break;
+	case 3: placeTrashAt(QPoint(i * GRID_SIZE, j * GRID_SIZE)); break;
+	default: break;
+	}
+}
+
+void GameMap::autoSaveGame()
+{
+	QString fileName = "./assets/save/save.ini";
+	saveGame(fileName);
 }

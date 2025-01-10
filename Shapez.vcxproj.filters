@@ -87,6 +87,9 @@
     <ClInclude Include="gameState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="save.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="gameMap.h">

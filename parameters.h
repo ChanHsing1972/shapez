@@ -54,6 +54,13 @@
 // 颜色
 #define GRAY 200, 200, 200
 
+// 设备
+#define BELT 0
+#define MINER 1
+#define CUTTER 2
+#define TRASH 3
+#define HUB 4
+
 // 参数
 extern int BELT_SPEED;
 extern int MINER_SPEED;

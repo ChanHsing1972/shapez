@@ -21,6 +21,7 @@ public:
 	void increaseCount(); // 增加计数
 	void reduceMineralCount(int count); // 减少计数
 	int getMineralCount(); // 获取矿物数量
+	void setMineralCount(int count); // 设置矿物数量
 
 protected:
 	void paintEvent(QPaintEvent* event) override;

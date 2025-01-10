@@ -4,6 +4,8 @@
 Hub::Hub(QWidget* parent) : Device(parent), mineralCount(0)
 {
 	setFixedSize(GRID_SIZE * 2 + 2, GRID_SIZE * 2 - 2); // 假设 hub 占据 2x2 的格子
+	typeID = 4;
+
 	pixmap.load("./assets/images/hub_small.png");
 }
 
@@ -50,4 +52,10 @@ void Hub::reduceMineralCount(int count)
 int Hub::getMineralCount()
 {
 	return mineralCount;
+}
+
+void Hub::setMineralCount(int count)
+{
+	mineralCount = count;
+	updateIcon();
 }

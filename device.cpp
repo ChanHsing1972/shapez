@@ -39,3 +39,8 @@ int Device::getRotationState()
 {
 	return rotationState;
 }
+
+int Device::getTypeID()
+{
+	return typeID;
+}

@@ -3,16 +3,11 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
-#include <QPushButton>
-#include <QVBoxLayout>
 #include <QStackedWidget>
-//#include "ui_mainWindow.h"
+#include <QCloseEvent>
 #include "parameters.h"
-#include "gameMap.h"
-#include "belt.h"
-#include "miner.h"
-#include "cutter.h"
 #include "welcomePage.h"
+#include "gameMap.h"
 
 class mainWindow : public QWidget
 {
@@ -22,8 +17,14 @@ public:
 	mainWindow(QWidget* parent = nullptr);
 	~mainWindow();
 
+protected:
+	// 重写关闭时事件，用于在关闭窗口时保存游戏
+	void closeEvent(QCloseEvent* event) override;
+
 private:
-	//Ui::WidgetClass ui;
+	QStackedWidget* stackedWidget;
+	WelcomePage* welcomePage;
+	GameMap* gameMap;
 };
 
 #endif

@@ -129,6 +129,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="save.h" />
     <QtMoc Include="shopPage.h" />
     <QtMoc Include="trash.h" />
     <QtMoc Include="welcomePage.h" />
