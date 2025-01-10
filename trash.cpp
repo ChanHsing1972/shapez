@@ -13,6 +13,7 @@ Trash::Trash(QWidget* parent) : Device(parent), pixmap(4)
 void Trash::paintEvent(QPaintEvent* event)
 {
 	Q_UNUSED(event);
+	raise();
 	QPainter painter(this);
 	painter.drawPixmap(rect(), pixmap[rotationState].scaled(GRID_SIZE, GRID_SIZE, Qt::KeepAspectRatio));
 }

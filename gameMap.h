@@ -12,6 +12,7 @@
 #include <QPixmap>
 #include <QApplication>
 #include <QScreen>
+#include <QSoundEffect>
 #include "parameters.h"
 #include "belt.h"
 #include "miner.h"
@@ -47,6 +48,10 @@ public:
 	GameMap(QWidget* parent = nullptr);
 	~GameMap();
 	static QVector<Mineral*> mineralList; // 全局矿物对象列表
+
+public slots:
+	// 控制淡入动画
+	void startFadeInAnimation();
 
 protected:
 	// 处理鼠标事件
@@ -122,6 +127,11 @@ private:
 	bool isDirectionChanged = false;
 
 	Hub* hub;
+
+	/*** 音效 ***/
+	QSoundEffect* placeSound;
+	QSoundEffect* deleteSound;
+	QSoundEffect* chooseSound;
 
 	/*** 槽 ***/
 

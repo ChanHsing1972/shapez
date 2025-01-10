@@ -58,6 +58,9 @@
 extern int BELT_SPEED;
 extern int MINER_SPEED;
 extern int CUTTER_SPEED;
+extern int minerLevel;
+extern int beltLevel;
+extern int cutterLevel;
 #define MOVE_FREQUENCY 10
 #define CHECK_FREQUENCY 100
 #define EDGE_SIZE 5

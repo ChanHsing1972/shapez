@@ -35,14 +35,11 @@ void Miner::setMineralType(int type)
 
 void Miner::generateMineral() // 生成矿物
 {
-	qDebug() << "Stop generateTimer!";
 	generateTimer->stop();
 	Mineral* newMineral = new Mineral(devices, mineralType, parentWidget());
 	newMineral->setPosition(posX, posY);
 	newMineral->setDirection(rotationState);
 	GameMap::mineralList.append(newMineral); // 将新生成的矿物添加到全局列表
 	emit newMineralGenerated(newMineral);
-	qDebug() << "Mineral generated!";
 	generateTimer->start(MINER_SPEED); // 生成下一个矿物
-	qDebug() << "Start generateTimer!";
 }

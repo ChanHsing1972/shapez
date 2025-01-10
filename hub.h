@@ -26,6 +26,7 @@ protected:
 	void paintEvent(QPaintEvent* event) override;
 
 private:
+	QPixmap pixmap;
 	void updateIcon();
 	int mineralCount;
 };

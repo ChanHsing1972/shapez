@@ -10,11 +10,11 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	setFixedSize(WINDOW_WIDTH * 2 / 3, WINDOW_HEIGHT * 2 / 3);
 	QVBoxLayout* mainLayout = new QVBoxLayout(this);
 
-	int fontPingFang = QFontDatabase::addApplicationFont("./assets/fonts/PingFang-Regular.ttf");
+	int fontPingFang = QFontDatabase::addApplicationFont("./PingFang-Regular.ttf");
 	QString fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
 	QFont customFontPingFang(fontPingFangFamily);
 
-	int fontYaHei = QFontDatabase::addApplicationFont("./assets/fonts/微软雅黑.ttc");
+	int fontYaHei = QFontDatabase::addApplicationFont("./微软雅黑.ttc");
 	QString fontYaHeiFamily = QFontDatabase::applicationFontFamilies(fontYaHei).at(0);
 	QFont customFontYaHei(fontYaHeiFamily);
 
@@ -46,7 +46,7 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	QLabel* minerLabel = new QLabel("<h4>开采器</h4>", this);
 	minerLabel->setFont(customFontYaHei);
 	minerLabel->setStyleSheet(labelStyleSheet);
-	minerLevelLabel = new QLabel("等级 1", this);
+	minerLevelLabel = new QLabel(QString("等级 %1").arg(minerLevel), this);
 	minerLevelLabel->setFont(customFontYaHei);
 	minerLevelLabel->setStyleSheet(costLabelStyleSheet);
 	QLabel* minerCostLabel = new QLabel("消耗 5 摩拉", this);
@@ -76,7 +76,7 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	QLabel* beltLabel = new QLabel("<h4>传送带</h4>", this);
 	beltLabel->setFont(customFontYaHei);
 	beltLabel->setStyleSheet(labelStyleSheet);
-	beltLevelLabel = new QLabel("等级 1", this);
+	beltLevelLabel = new QLabel(QString("等级 %1").arg(beltLevel), this);
 	beltLevelLabel->setFont(customFontYaHei);
 	beltLevelLabel->setStyleSheet(costLabelStyleSheet);
 	QLabel* beltCostLabel = new QLabel("消耗 5 摩拉", this);
@@ -105,7 +105,7 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	QLabel* cutterLabel = new QLabel("<h4>切割机</h4>", this);
 	cutterLabel->setFont(customFontYaHei);
 	cutterLabel->setStyleSheet(labelStyleSheet);
-	cutterLevelLabel = new QLabel("等级 1", this);
+	cutterLevelLabel = new QLabel(QString("等级 %1").arg(cutterLevel), this);
 	cutterLevelLabel->setFont(customFontYaHei);
 	cutterLevelLabel->setStyleSheet(costLabelStyleSheet);
 	QLabel* cutterCostLabel = new QLabel("消耗 5 摩拉", this);
@@ -127,9 +127,11 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	cutterLayout->addSpacerItem(new QSpacerItem(40, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
 	// 将各个布局添加到主布局中
+	mainLayout->addSpacerItem(new QSpacerItem(0, 100, QSizePolicy::Fixed, QSizePolicy::Minimum));
 	mainLayout->addLayout(minerLayout);
 	mainLayout->addLayout(beltLayout);
 	mainLayout->addLayout(cutterLayout);
+	mainLayout->addSpacerItem(new QSpacerItem(0, 100, QSizePolicy::Fixed, QSizePolicy::Minimum));
 
 	connect(minerButton, &QPushButton::clicked, this, &ShopPage::applyMinerSpeed);
 	connect(beltButton, &QPushButton::clicked, this, &ShopPage::applyBeltSpeed);
@@ -179,7 +181,6 @@ void ShopPage::applyMinerSpeed()
 	}
 	MINER_SPEED /= 2;
 
-	static int minerLevel = 1;
 	minerLevel++;
 	minerLevelLabel->setText(QString("等级 %1").arg(minerLevel));
 
@@ -204,7 +205,6 @@ void ShopPage::applyBeltSpeed()
 	}
 	BELT_SPEED++;
 
-	static int beltLevel = 1;
 	beltLevel++;
 	beltLevelLabel->setText(QString("等级 %1").arg(beltLevel));
 
@@ -220,7 +220,7 @@ void ShopPage::applyCutterSpeed()
 			QMessageBox::warning(this, "失败", "矿物数量不足，无法修改切割机速度。");
 			return;
 		}
-		if (CUTTER_SPEED <= 250)
+		if (CUTTER_SPEED <= 125)
 		{
 			QMessageBox::warning(this, "失败", "已达到最大切割速度。");
 			return;
@@ -229,7 +229,6 @@ void ShopPage::applyCutterSpeed()
 	}
 	CUTTER_SPEED /= 4;
 
-	static int cutterLevel = 1;
 	cutterLevel++;
 	cutterLevelLabel->setText(QString("等级 %1").arg(cutterLevel));
 

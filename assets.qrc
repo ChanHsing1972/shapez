@@ -27,8 +27,6 @@
         <file>assets/images/belt_W_A.png</file>
         <file>assets/images/belt_W_D.png</file>
         <file>assets/images/clear_barriers.png</file>
-        <file>assets/images/confirm.png</file>
-        <file>assets/images/continue_game.png</file>
         <file>assets/images/cutter_A.png</file>
         <file>assets/images/cutter_blue_A.png</file>
         <file>assets/images/cutter_blue_D.png</file>
@@ -40,7 +38,6 @@
         <file>assets/images/cutter_W.png</file>
         <file>assets/images/cycle.png</file>
         <file>assets/images/cycle_mine.png</file>
-        <file>assets/images/help.png</file>
         <file>assets/images/hub_big.png</file>
         <file>assets/images/hub_small.png</file>
         <file>assets/images/icon.png</file>
@@ -57,12 +54,9 @@
         <file>assets/images/miner_D.png</file>
         <file>assets/images/miner_S.png</file>
         <file>assets/images/miner_W.png</file>
-        <file>assets/images/new_game.png</file>
         <file>assets/images/rect.png</file>
         <file>assets/images/rect_mine.png</file>
-        <file>assets/images/return.png</file>
         <file>assets/images/right_cycle.png</file>
-        <file>assets/images/shop.png</file>
         <file>assets/images/trash_A.png</file>
         <file>assets/images/trash_blue_A.png</file>
         <file>assets/images/trash_blue_D.png</file>
@@ -72,10 +66,9 @@
         <file>assets/images/trash_D.png</file>
         <file>assets/images/trash_S.png</file>
         <file>assets/images/trash_W.png</file>
-        <file>assets/images/win.png</file>
         <file>assets/music/theme-full.mp3</file>
-        <file>assets/fonts/PingFang-Regular.ttf</file>
-        <file>assets/fonts/微软雅黑.ttc</file>
-        <file>assets/fonts/impact.ttf</file>
+        <file>assets/sound_effects/choose.wav</file>
+        <file>assets/sound_effects/delete.wav</file>
+        <file>assets/sound_effects/place.wav</file>
     </qresource>
 </RCC>

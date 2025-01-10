@@ -24,6 +24,7 @@ Belt::Belt(QWidget* parent) : Device(parent), pixmap(12)
 void Belt::paintEvent(QPaintEvent* event)
 {
 	Q_UNUSED(event);
+	lower(); // 使传送带位于最底层
 	QPainter painter(this);
 	painter.drawPixmap(rect(), pixmap[rotationState].scaled(size(), Qt::KeepAspectRatio));
 }

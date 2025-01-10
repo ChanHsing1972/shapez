@@ -12,7 +12,6 @@ beltToPlace(12), minerToPlace(4), cutterToPlace(4), trashToPlace(4)
 	cycleMineImage.load("./assets/images/cycle_mine.png");
 	rectMineImage.load("./assets/images/rect_mine.png");
 	barrierImage.load("./assets/images/barrier.png");
-	hubSmallImage.load("./assets/images/hub_small.png");
 
 	beltToPlace[_W].load("./assets/images/belt_blue_W.png");
 	beltToPlace[_D].load("./assets/images/belt_blue_D.png");
@@ -33,6 +32,18 @@ beltToPlace(12), minerToPlace(4), cutterToPlace(4), trashToPlace(4)
 	trashToPlace[_D].load("./assets/images/trash_blue_D.png");
 	trashToPlace[_S].load("./assets/images/trash_blue_S.png");
 	trashToPlace[_A].load("./assets/images/trash_blue_A.png");
+
+	placeSound = new QSoundEffect(this);
+	deleteSound = new QSoundEffect(this);
+	chooseSound = new QSoundEffect(this);
+
+	placeSound->setSource(QUrl::fromLocalFile("./assets/sound_effects/place.wav"));
+	deleteSound->setSource(QUrl::fromLocalFile("./assets/sound_effects/delete.wav"));
+	chooseSound->setSource(QUrl::fromLocalFile("./assets/sound_effects/choose.wav"));
+
+	placeSound->setVolume(1);
+	deleteSound->setVolume(1);
+	chooseSound->setVolume(1);
 
 	// 初始化地图，并加入地图列表
 	MapData mapA;
@@ -185,11 +196,6 @@ void GameMap::cacheStaticMap()
 		int y = barrier.y() * GRID_SIZE;
 		painter.drawPixmap(x, y, barrierImage.scaled(GRID_SIZE, GRID_SIZE, Qt::KeepAspectRatio));
 	}
-
-	// 绘制小型中心
-	int hubSmallX = currentMap.hubSmall[0].x() * GRID_SIZE;
-	int hubSmallY = currentMap.hubSmall[0].y() * GRID_SIZE;
-	painter.drawPixmap(hubSmallX, hubSmallY, hubSmallImage.scaled(GRID_SIZE * 2, GRID_SIZE * 2, Qt::KeepAspectRatio));
 }
 
 // 绘制地图
@@ -236,6 +242,7 @@ void GameMap::paintEvent(QPaintEvent* event)
 // 鼠标单击某按钮后，标记为可以放下该物品
 void GameMap::onButtonClicked(QString s)
 {
+	chooseSound->play();
 	qDebug() << s << "button clicked!";
 	canPlaceBelt = (s == "Belt" ? true : false);
 	placeBeltFeedback = (s == "Belt" ? true : false);
@@ -401,6 +408,10 @@ void GameMap::rightClicked(Device* device)
 		}
 	}
 
+	if (isDirectionChanged == false)
+	{
+		deleteSound->play();
+	}
 	device->deleteLater();
 }
 
@@ -454,6 +465,7 @@ void GameMap::placeBeltAt(const QPoint& pos)
 	}
 	// 放置传送带
 	Belt* newBelt = new Belt(this);
+	placeSound->play();
 	newBelt->setPosition(pixelX, pixelY);
 	newBelt->setRotationState(rotationState);
 	connect(newBelt, &Belt::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
@@ -485,6 +497,7 @@ void GameMap::placeMinerAt(const QPoint& pos)
 	}
 
 	Miner* newMiner = new Miner(&currentMap.devices, this);
+	placeSound->play();
 	if (maps[0].cycleMines.contains(QPoint(pixelX / GRID_SIZE, pixelY / GRID_SIZE)))
 	{
 		newMiner->setMineralType(CYCLE_MINE);
@@ -526,6 +539,7 @@ void GameMap::placeCutterAt(const QPoint& pos)
 		return;
 	}
 	Cutter* newCutter = new Cutter(&currentMap.devices, this);
+	placeSound->play();
 	newCutter->setPosition(pixelX, pixelY);
 	newCutter->setRotationState(rotationState);
 	connect(newCutter, &Cutter::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
@@ -564,6 +578,7 @@ void GameMap::placeTrashAt(const QPoint& pos)
 		return;
 	}
 	Trash* newTrash = new Trash(this);
+	placeSound->play();
 	newTrash->setPosition(pixelX, pixelY);
 	newTrash->setRotationState(rotationState);
 	connect(newTrash, &Trash::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
@@ -598,10 +613,10 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 		{
 			rotationState = _S_A;
 		}
+		isDirectionChanged = true;
 		rightClicked(beltList[beltList.size() - 1]); // 为了调整方向，需要先删除已经放置的传送带
 		placeBeltAt(currentPosition); // 重新放置
 		rotationState = _A; // rotationState 设为接下来传送带铺设的方向
-		isDirectionChanged = true;
 	}
 
 	// 右边缘
@@ -615,10 +630,10 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 		{
 			rotationState = _S_D;
 		}
+		isDirectionChanged = true;
 		rightClicked(beltList[beltList.size() - 1]);
 		placeBeltAt(currentPosition);
 		rotationState = _D;
-		isDirectionChanged = true;
 	}
 
 	// 上边缘
@@ -632,10 +647,10 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 		{
 			rotationState = _A_W;
 		}
+		isDirectionChanged = true;
 		rightClicked(beltList[beltList.size() - 1]);
 		placeBeltAt(currentPosition);
 		rotationState = _W;
-		isDirectionChanged = true;
 	}
 
 	// 下边缘
@@ -649,17 +664,16 @@ void GameMap::getBeltDirection(QPoint currentPosition)
 		{
 			rotationState = _A_S;
 		}
+		isDirectionChanged = true;
 		rightClicked(beltList[beltList.size() - 1]);
 		placeBeltAt(currentPosition);
 		rotationState = _S;
-		isDirectionChanged = true;
 	}
 }
 
 // 生成新的矿物，然后将其传送到传送带上
 void GameMap::onNewMineralGenerated(Mineral* mineral)
 {
-	qDebug() << "On New mineral generated!";
 	QPoint mineralGridPos(mineral->getX() / GRID_SIZE, mineral->getY() / GRID_SIZE); // 矿物所在的格子坐标
 	for (Belt* belt : beltList) // 遍历传送带列表，找到矿物所在的格子
 	{
@@ -675,7 +689,6 @@ void GameMap::onNewMineralGenerated(Mineral* mineral)
 			|| (QPoint(beltGridX + 1, beltGridY) == mineralGridPos && mineral->getDirection() == _A
 				&& (belt->getRotationState() == _A || belt->getRotationState() == _A_S || belt->getRotationState() == _A_W)))
 		{
-			qDebug() << "Mineral start moving!";
 			mineral->startMoving();
 		}
 	}
@@ -693,4 +706,17 @@ bool GameMap::checkEmptyGrid(int gridX, int gridY)
 		return false;
 	}
 	return true;
+}
+
+// 控制淡入动画
+void GameMap::startFadeInAnimation()
+{
+	// 创建淡入效果
+	QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(this);
+	this->setGraphicsEffect(opacityEffect);
+	QPropertyAnimation* animation = new QPropertyAnimation(opacityEffect, "opacity", this);
+	animation->setDuration(300); // 设置淡入持续时间（毫秒）
+	animation->setStartValue(0.0);
+	animation->setEndValue(1.0);
+	animation->start(QAbstractAnimation::DeleteWhenStopped);
 }

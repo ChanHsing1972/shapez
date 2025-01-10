@@ -4,6 +4,7 @@
 Hub::Hub(QWidget* parent) : Device(parent), mineralCount(0)
 {
 	setFixedSize(GRID_SIZE * 2 + 2, GRID_SIZE * 2 - 2); // 假设 hub 占据 2x2 的格子
+	pixmap.load("./assets/images/hub_small.png");
 }
 
 void Hub::setPosition(int x, int y)
@@ -15,9 +16,11 @@ void Hub::paintEvent(QPaintEvent* event)
 {
 	Q_UNUSED(event);
 	QPainter painter(this);
+	raise();
+	painter.drawPixmap(posX, posY, pixmap.scaled(GRID_SIZE * 2, GRID_SIZE * 2, Qt::KeepAspectRatio));
 
 	// 在图标上绘制矿物数量
-	int fontImpact = QFontDatabase::addApplicationFont("./assets/fonts/impact.ttf");
+	int fontImpact = QFontDatabase::addApplicationFont("./impact.ttf");
 	QString fontImpactFamily = QFontDatabase::applicationFontFamilies(fontImpact).at(0);
 	QFont customFontImpact(fontImpactFamily, 18);
 

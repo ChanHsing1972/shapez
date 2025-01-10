@@ -40,7 +40,7 @@ HelpPage::HelpPage(QWidget* parent) : QDialog(parent) {
 	);
 
 	// …Ë÷√◊÷ÃÂ∫Õ±ﬂæ‡
-	int fontYaHei = QFontDatabase::addApplicationFont("./assets/fonts/Œ¢»Ì—≈∫⁄.ttc");
+	int fontYaHei = QFontDatabase::addApplicationFont("./Œ¢»Ì—≈∫⁄.ttc");
 	QString fontYaHeiFamily = QFontDatabase::applicationFontFamilies(fontYaHei).at(0);
 	QFont customFontYaHei(fontYaHeiFamily, 12);
 
@@ -57,7 +57,7 @@ HelpPage::HelpPage(QWidget* parent) : QDialog(parent) {
 	// ÃÌº”πÿ±’∞¥≈•
 	QPushButton* closeButton = new QPushButton("πÿ±’", this);
 
-	int fontPingFang = QFontDatabase::addApplicationFont("./assets/fonts/PingFang-Regular.ttf");
+	int fontPingFang = QFontDatabase::addApplicationFont("./PingFang-Regular.ttf");
 	QString fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
 	QFont customFontPingFang(fontPingFangFamily);
 

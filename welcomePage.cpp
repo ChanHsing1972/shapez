@@ -17,7 +17,7 @@ WelcomePage::WelcomePage(QWidget* parent) : QWidget(parent)
 	startButton->setText("开始游戏");
 	exitButton->setText("退      出");
 
-	int fontPingFang = QFontDatabase::addApplicationFont("./assets/fonts/PingFang-Regular.ttf");
+	int fontPingFang = QFontDatabase::addApplicationFont("./PingFang-Regular.ttf");
 	QString fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
 	QFont customFontPingFang(fontPingFangFamily);
 
@@ -88,6 +88,14 @@ WelcomePage::WelcomePage(QWidget* parent) : QWidget(parent)
 	// 安装事件过滤器
 	startButton->installEventFilter(this);
 	exitButton->installEventFilter(this);
+
+	bgmPlayer = new QMediaPlayer(this);
+	bgmPlaylist = new QMediaPlaylist(this);
+	bgmPlaylist->addMedia(QUrl("./assets/music/theme-full.mp3"));
+	bgmPlaylist->setPlaybackMode(QMediaPlaylist::Loop); // 循环播放
+	bgmPlayer->setPlaylist(bgmPlaylist);
+	bgmPlayer->setVolume(30); // 设置音量
+	bgmPlayer->play();
 }
 
 bool WelcomePage::eventFilter(QObject* watched, QEvent* event)
@@ -118,7 +126,28 @@ bool WelcomePage::eventFilter(QObject* watched, QEvent* event)
 
 void WelcomePage::onStartClicked()
 {
-	emit startGame(); // 发出开始游戏信号
+	// 移除按钮的透明度效果
+	startButton->setGraphicsEffect(nullptr);
+	exitButton->setGraphicsEffect(nullptr);
+
+	// 移除按钮的事件过滤器
+	startButton->removeEventFilter(this);
+	exitButton->removeEventFilter(this);
+
+	// 创建淡出效果
+	QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(this);
+	this->setGraphicsEffect(opacityEffect);
+	QPropertyAnimation* animation = new QPropertyAnimation(opacityEffect, "opacity", this);
+	animation->setDuration(300); // 设置淡出持续时间（毫秒）
+	animation->setStartValue(1.0);
+	animation->setEndValue(0.0);
+	animation->start(QAbstractAnimation::DeleteWhenStopped);
+
+	// 当淡出动画完成后，隐藏当前页面并发送信号
+	connect(animation, &QPropertyAnimation::finished, this, [this]() {
+		emit startGame(); // 发出开始游戏信号
+		});
+
 }
 
 void WelcomePage::onExitClicked()

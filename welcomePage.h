@@ -9,6 +9,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QPropertyAnimation>
 #include <QEvent>
+#include <QMediaplayer>
+#include <QMediaPlaylist>
 #include "parameters.h"
 
 class WelcomePage : public QWidget {
@@ -26,6 +28,8 @@ protected:
 private:
 	QPushButton* startButton;
 	QPushButton* exitButton;
+	QMediaPlayer* bgmPlayer;
+	QMediaPlaylist* bgmPlaylist;
 
 private slots:
 	void onStartClicked(); // 开始按钮点击槽

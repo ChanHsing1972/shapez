@@ -104,10 +104,14 @@ void Mineral::moving()
 			}
 		}
 	}
-	// 如果矿物不在这两个设备上，则直接删除
+	else if (dynamic_cast<Hub*>((*devices)[gridX][gridY])
+		|| dynamic_cast<Trash*>((*devices)[gridX][gridY]))
+	{
+	}
+	// 如果矿物不在设备上，则直接删除
 	else
 	{
-		qDebug() << "STOP 1: Not on belt or miner!";
+		qDebug() << "STOP 1: Not on devices!";
 		hide(); // 隐藏矿物
 		// 从 mineralList 中移除矿物对象
 		auto it = std::find_if(GameMap::mineralList.begin(), GameMap::mineralList.end(),
@@ -148,7 +152,6 @@ void Mineral::moving()
 	// 2. 检查矿物前方是否有传送带，如果没有，则停止移动，确保矿物最后停留在传送带上
 	if (isMineralAhead() || !isBeltAhead())
 	{
-
 		stopMoving(); // 停止移动
 		checkTimer->start(CHECK_FREQUENCY); // 开始循环检查矿物前方是否有新传送带
 		return;
@@ -170,7 +173,6 @@ void Mineral::moving()
 		pixelX -= BELT_SPEED;
 		break;
 	}
-	raise(); // 确保矿物始终显示在传送带上方
 	move(pixelX, pixelY);
 	show();
 	update();
@@ -215,7 +217,6 @@ bool Mineral::isMineralAhead()
 			&& offsetX == 0 && offsetY == 0 && mineral->getX() % GRID_SIZE == 0 && mineral->getY() % GRID_SIZE == 0)
 		{
 			qDebug() << "STOP 2: Mineral ahead!";
-			qDebug() << nextGridX << " " << nextGridY;
 			return true;
 		}
 	}
@@ -239,7 +240,9 @@ bool Mineral::isBeltAhead()
 
 	if ((offsetX == 0 && offsetY == 0))
 	{
-		if (!dynamic_cast<Belt*>((*devices)[nextGridX][nextGridY]))
+		if (!dynamic_cast<Belt*>((*devices)[nextGridX][nextGridY])
+			&& !dynamic_cast<Hub*>((*devices)[nextGridX][nextGridY])
+			&& !dynamic_cast<Trash*>((*devices)[nextGridX][nextGridY]))
 		{
 			qDebug() << "STOP 3: No belt ahead!";
 			return false;
@@ -253,21 +256,19 @@ bool Mineral::checkIfAtHub()
 {
 	int gridX = pixelX / GRID_SIZE;
 	int gridY = pixelY / GRID_SIZE;
-	int nextGridX = getNextGridX(gridX);
-	int nextGridY = getNextGridY(gridY);
 	int offsetX = pixelX % GRID_SIZE; // 矿物在格子里的偏移量（单位：像素）
 	int offsetY = pixelY % GRID_SIZE; // 矿物在格子里的偏移量（单位：像素）
 
 	// 交付中心的位置为
 	// (WINDOW_WIDTH / GRID_SIZE - 2) / 2 + i, (WINDOW_HEIGHT / GRID_SIZE - 2) / 2 + j
 	if (offsetX == 0 && offsetY == 0
-		&& ((nextGridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 && nextGridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2)
-			|| (nextGridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 + 1 && nextGridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2)
-			|| (nextGridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 && nextGridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2 + 1)
-			|| (nextGridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 + 1 && nextGridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2 + 1)))
+		&& ((gridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 && gridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2)
+			|| (gridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 + 1 && gridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2)
+			|| (gridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 && gridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2 + 1)
+			|| (gridX == (WINDOW_WIDTH / GRID_SIZE - 2) / 2 + 1 && gridY == (WINDOW_HEIGHT / GRID_SIZE - 2) / 2 + 1)))
 	{
 		qDebug() << "Mineral delivered!";
-		if (Hub* hub = dynamic_cast<Hub*>((*devices)[nextGridX][nextGridY]))
+		if (Hub* hub = dynamic_cast<Hub*>((*devices)[gridX][gridY]))
 		{
 			hub->increaseCount();
 		}
@@ -281,11 +282,9 @@ bool Mineral::checkIfAtTrash()
 {
 	int gridX = pixelX / GRID_SIZE;
 	int gridY = pixelY / GRID_SIZE;
-	int nextGridX = getNextGridX(gridX);
-	int nextGridY = getNextGridY(gridY);
 	int offsetX = pixelX % GRID_SIZE; // 矿物在格子里的偏移量（单位：像素）
 	int offsetY = pixelY % GRID_SIZE; // 矿物在格子里的偏移量（单位：像素）
-	if (Trash* trash = dynamic_cast<Trash*>((*devices)[nextGridX][nextGridY]))
+	if (Trash* trash = dynamic_cast<Trash*>((*devices)[gridX][gridY]))
 	{
 		if (offsetX == 0 && offsetY == 0)
 		{
@@ -302,8 +301,8 @@ bool Mineral::checkIfAtCutter()
 	int gridY = pixelY / GRID_SIZE;
 	int nextGridX = getNextGridX(gridX);
 	int nextGridY = getNextGridY(gridY);
-	int outputGridX = getNextGridX(nextGridX); // 切割机输出口的坐标
-	int outputGridY = getNextGridY(nextGridY); // 切割机输出口的坐标
+	int outputGridX = getNextGridX(nextGridX);
+	int outputGridY = getNextGridY(nextGridY);
 	int offsetX = pixelX % GRID_SIZE; // 矿物在格子里的偏移量（单位：像素）
 	int offsetY = pixelY % GRID_SIZE; // 矿物在格子里的偏移量（单位：像素）
 	if (gridX < 0 || gridX >= devices->size() || gridY < 0 || gridY >= devices->at(0).size())
@@ -359,7 +358,6 @@ bool Mineral::checkIfAtCutter()
 
 			Mineral* halfMineral1 = nullptr;
 			Mineral* halfMineral2 = nullptr;
-			qDebug() << "mineralType:" << mineralType;
 			if (mineralType == CYCLE_MINE)
 			{
 				halfMineral1 = new Mineral(devices, CYCLE_MINE_L, parentWidget());
@@ -380,7 +378,6 @@ bool Mineral::checkIfAtCutter()
 			GameMap::mineralList.append(halfMineral2); // 将新生成的矿物添加到全局列表
 			halfMineral1->startMoving();
 			halfMineral2->startMoving();
-			qDebug() << "Mineral generated!";
 			return true;
 		}
 	}

@@ -13,6 +13,7 @@ void Cutter::paintEvent(QPaintEvent* event)
 {
 	Q_UNUSED(event);
 	QPainter painter(this);
+	lower(); // 使切割机位于最底层
 
 	if (rotationState == _W || rotationState == _S)
 	{

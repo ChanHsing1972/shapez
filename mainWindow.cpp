@@ -23,6 +23,10 @@ mainWindow::mainWindow(QWidget* parent) : QWidget(parent)
 		stackedWidget->setCurrentWidget(stackedWidget->widget(1));
 		});
 
+	// 当接收到 startGameFadeIn 信号时，启动 GameMap 的淡入效果
+	connect(welcomePage, &WelcomePage::startGame, gameMap, &GameMap::startFadeInAnimation);
+
+
 	// 显示欢迎页面
 	stackedWidget->setCurrentWidget(welcomePage);
 }
