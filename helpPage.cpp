@@ -16,6 +16,8 @@ HelpPage::HelpPage(QWidget* parent) : QDialog(parent) {
 		"<h2>关于</h2>"
 		"<p>此程序是一个模仿<a href='http://shapez.io/'>异形工厂</a>（Shapez）的游戏。<br>\
 		    您可在此处找到游戏方法及注意事项。</p>"
+
+
 		"<h3>说明</h3>"
 		"<p>此程序由<a href='https://chenxinchen.us.kg/'>尘心</a>独立开发制作，图像素材来自<a href='https://github.com/jiangqianyu/MyShapez'>此仓库</a>。</p>"
 		"<h3>游戏方法</h3>"
@@ -25,6 +27,7 @@ HelpPage::HelpPage(QWidget* parent) : QDialog(parent) {
 		"		 <li> 左键单击/拖动：放置设施"
 		"    <li> 右键单击/拖动：删除设施"
 		"    <li> R：旋转设施"
+		"    <li> Esc：退出游戏"
 		"</ul>"
 		"四种设施的功能如下。"
 		"<ul>"

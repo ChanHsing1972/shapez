@@ -20,6 +20,8 @@ public:
 protected:
 	// 重写关闭时事件，用于在关闭窗口时保存游戏
 	void closeEvent(QCloseEvent* event) override;
+	// 重写键盘按下事件，用于处理 Esc 键退出游戏
+	void keyPressEvent(QKeyEvent* event);
 
 private:
 	QStackedWidget* stackedWidget;

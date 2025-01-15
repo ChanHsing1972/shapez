@@ -93,6 +93,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="comletePage.cpp" />
     <ClCompile Include="cutter.cpp" />
     <ClCompile Include="gameState.cpp" />
     <ClCompile Include="helpPage.cpp">
@@ -129,6 +130,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="comletePage.h" />
     <ClInclude Include="save.h" />
     <QtMoc Include="shopPage.h" />
     <QtMoc Include="trash.h" />

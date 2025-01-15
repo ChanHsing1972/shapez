@@ -167,7 +167,7 @@ void ShopPage::applyMinerSpeed()
 {
 	if (Hub* hub = dynamic_cast<Hub*>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
 	{
-		if (hub->getMineralCount() < 0)
+		if (hub->getMineralCount() < 5)
 		{
 			QMessageBox::warning(this, "失败", "矿物数量不足，无法修改开采器速度。");
 			return;
@@ -177,7 +177,7 @@ void ShopPage::applyMinerSpeed()
 			QMessageBox::warning(this, "失败", "已达到最大开采速度。");
 			return;
 		}
-		hub->reduceMineralCount(0);
+		hub->reduceMineralCount(5);
 	}
 	MINER_SPEED /= 2;
 
@@ -191,7 +191,7 @@ void ShopPage::applyBeltSpeed()
 {
 	if (Hub* hub = dynamic_cast<Hub*>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
 	{
-		if (hub->getMineralCount() < 0)
+		if (hub->getMineralCount() < 5)
 		{
 			QMessageBox::warning(this, "失败", "矿物数量不足，无法修改传送带速度。");
 			return;
@@ -201,7 +201,7 @@ void ShopPage::applyBeltSpeed()
 			QMessageBox::warning(this, "失败", "已达到最大传送速度。");
 			return;
 		}
-		hub->reduceMineralCount(0);
+		hub->reduceMineralCount(5);
 	}
 	BELT_SPEED++;
 
@@ -215,7 +215,7 @@ void ShopPage::applyCutterSpeed()
 {
 	if (Hub* hub = dynamic_cast<Hub*>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
 	{
-		if (hub->getMineralCount() < 0)
+		if (hub->getMineralCount() < 5)
 		{
 			QMessageBox::warning(this, "失败", "矿物数量不足，无法修改切割机速度。");
 			return;
@@ -225,7 +225,7 @@ void ShopPage::applyCutterSpeed()
 			QMessageBox::warning(this, "失败", "已达到最大切割速度。");
 			return;
 		}
-		hub->reduceMineralCount(0);
+		hub->reduceMineralCount(5);
 	}
 	CUTTER_SPEED /= 4;
 

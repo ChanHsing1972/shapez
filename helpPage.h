@@ -12,7 +12,8 @@
 #include <QSpacerItem>
 #include <QFontDatabase>
 
-class HelpPage : public QDialog {
+class HelpPage : public QDialog
+{
 	Q_OBJECT
 
 public:

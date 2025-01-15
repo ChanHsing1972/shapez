@@ -23,6 +23,7 @@
 #include "trash.h"
 #include "helpPage.h"
 #include "shopPage.h"
+#include "comletePage.h"
 #include "mineral.h"
 #include "hub.h"
 #include "save.h"
@@ -31,6 +32,15 @@
 class Belt;
 class Mineral;
 class Hub;
+
+struct Task
+{
+	QString description;
+	int mineralType;
+	int targetCount;
+	int currentCount;
+	QPixmap icon;
+};
 
 struct MapData
 {
@@ -54,13 +64,14 @@ public:
 	static QVector<Mineral*> mineralList; // 全局矿物对象列表
 	void saveGame(const QString& fileName);
 	void loadGame(const QString& fileName);
+	void updateTaskProgress(QVector<int>& collectedMines);
 
 public slots:
 	// 控制淡入动画
 	void startFadeInAnimation();
 
 protected:
-	// 处理鼠标事件
+	// 处理鼠标 / 键盘事件
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseMoveEvent(QMouseEvent* event) override;
 	void mouseReleaseEvent(QMouseEvent* event) override;
@@ -142,7 +153,15 @@ private:
 	/*** 存档 ***/
 	void createDeviceByTypeID(int typeID, int i, int j);
 	void autoSaveGame();
-	void startAutoSaveGame();
+
+	/*** 任务 ***/
+	QLabel* taskLabel; // 添加 QLabel 成员变量
+	QVector<Task> tasks;
+	int currentTaskIndex;
+	QLabel* taskIconLabel;
+	QHBoxLayout* taskLayout;
+	CompletePage* completionWidget;
+	void updateTaskDisplay();
 
 	/*** 槽 ***/
 private slots:

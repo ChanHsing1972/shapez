@@ -105,8 +105,7 @@ void Mineral::moving()
 		}
 	}
 	else if (dynamic_cast<Hub*>((*devices)[gridX][gridY])
-		|| dynamic_cast<Trash*>((*devices)[gridX][gridY]))
-	{
+		|| dynamic_cast<Trash*>((*devices)[gridX][gridY])) {
 	}
 	// 如果矿物不在设备上，则直接删除
 	else
@@ -212,8 +211,8 @@ bool Mineral::isMineralAhead()
 	// 检查前方是否有矿物
 	for (const auto& mineral : GameMap::mineralList)
 	{
-		if (mineral != this && (mineral->getX() / GRID_SIZE == nextGridX)
-			&& (mineral->getY() / GRID_SIZE == nextGridY)
+		if (mineral != this && mineral->getX() / GRID_SIZE == nextGridX
+			&& mineral->getY() / GRID_SIZE == nextGridY
 			&& offsetX == 0 && offsetY == 0 && mineral->getX() % GRID_SIZE == 0 && mineral->getY() % GRID_SIZE == 0)
 		{
 			qDebug() << "STOP 2: Mineral ahead!";
@@ -270,7 +269,7 @@ bool Mineral::checkIfAtHub()
 		qDebug() << "Mineral delivered!";
 		if (Hub* hub = dynamic_cast<Hub*>((*devices)[gridX][gridY]))
 		{
-			hub->increaseCount();
+			hub->increaseMineralCount(mineralType);
 		}
 		return true;
 	}

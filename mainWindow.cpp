@@ -2,6 +2,12 @@
 
 mainWindow::mainWindow(QWidget* parent) : QWidget(parent)
 {
+	// 获取当前屏幕的分辨率
+	QScreen* screen = QGuiApplication::primaryScreen();
+	QRect screenGeometry = screen->geometry();
+	WINDOW_WIDTH = screenGeometry.width();
+	WINDOW_HEIGHT = screenGeometry.height();
+
 	setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	setWindowIcon(QIcon("./assets/images/icon.png"));
 
@@ -34,6 +40,7 @@ mainWindow::mainWindow(QWidget* parent) : QWidget(parent)
 
 	// 显示欢迎页面
 	stackedWidget->setCurrentWidget(welcomePage);
+	showFullScreen();
 }
 
 mainWindow::~mainWindow()
@@ -48,4 +55,23 @@ void mainWindow::closeEvent(QCloseEvent* event)
 {
 	gameMap->saveGame("./assets/save/save.ini");
 	event->accept();
+}
+
+// 重写键盘按下事件，用于处理 Esc 键退出游戏
+void mainWindow::keyPressEvent(QKeyEvent* event)
+{
+	if (event->key() == Qt::Key_Escape)
+	{
+		QMessageBox::StandardButton reply;
+		reply = QMessageBox::question(this, "退出", "确定退出游戏？",
+			QMessageBox::Yes | QMessageBox::No);
+		if (reply == QMessageBox::Yes)
+		{
+			QApplication::quit();
+		}
+	}
+	else
+	{
+		QWidget::keyPressEvent(event);
+	}
 }

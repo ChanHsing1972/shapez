@@ -79,6 +79,9 @@
     <ClCompile Include="parameters.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="comletePage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="parameters.h">
@@ -123,6 +126,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="shopPage.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="comletePage.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

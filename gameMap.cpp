@@ -3,7 +3,7 @@
 QVector<Mineral*> GameMap::mineralList; // 初始化全局矿物对象列表
 
 GameMap::GameMap(QWidget* parent) : QWidget(parent),
-beltToPlace(12), minerToPlace(4), cutterToPlace(4), trashToPlace(4)
+beltToPlace(12), minerToPlace(4), cutterToPlace(4), trashToPlace(4), currentTaskIndex(0)
 {
 	setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	setMouseTracking(true); // 启用鼠标跟踪
@@ -103,6 +103,38 @@ beltToPlace(12), minerToPlace(4), cutterToPlace(4), trashToPlace(4)
 	QTimer* autoSaveTimer = new QTimer(this);
 	connect(autoSaveTimer, &QTimer::timeout, this, &GameMap::autoSaveGame);
 	autoSaveTimer->start(300000);
+
+	int fontPingFang = QFontDatabase::addApplicationFont("./PingFang-Regular.ttf");
+	QString fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
+	QFont customFontPingFang(fontPingFangFamily);
+
+	// 初始化任务列表
+	tasks.append({ "收集 3 个圆形矿物", CYCLE_MINE, 3, 0, QPixmap("./assets/images/cycle.png") });
+	tasks.append({ "收集 5 个方形矿物", RECT_MINE, 5, 0, QPixmap("./assets/images/rect.png") });
+	tasks.append({ "收集 5 个半圆矿物", CYCLE_MINE_L, 5, 0, QPixmap("./assets/images/left_cycle.png") });
+	tasks.append({ "收集 5 个半圆矿物", CYCLE_MINE_R, 5, 0, QPixmap("./assets/images/right_cycle.png") });
+	tasks.append({ "", CYCLE_MINE_R, INT_MAX, 0, QPixmap(0,0) });
+
+	// 初始化任务显示
+	taskLabel = new QLabel(this);
+	taskLabel->setFont(customFontPingFang);
+	taskIconLabel = new QLabel(this);
+	taskLayout = new QHBoxLayout();
+	taskLayout->addWidget(taskIconLabel);
+	taskLayout->addWidget(taskLabel);
+	taskLayout->setAlignment(Qt::AlignLeft);
+	taskLayout->setContentsMargins(0, 0, 0, 0);
+
+	QWidget* taskWidget = new QWidget(this);
+	taskWidget->setLayout(taskLayout);
+	taskWidget->setGeometry(WINDOW_WIDTH - 300, 10, 290, 100);
+
+	updateTaskDisplay();
+
+	completionWidget = new CompletePage(this);
+	connect(completionWidget, &CompletePage::continueClicked, this, [this]() {
+		completionWidget->hide();
+		});
 }
 
 GameMap::~GameMap() {}
@@ -152,7 +184,9 @@ void GameMap::loadMap(int level)
 {
 	currentMap = maps[level];
 	cacheStaticMap(); // 缓存静态背景
+	qDebug() << "Map updating!";
 	update();
+	qDebug() << "Map updated!";
 }
 
 // 缓存静态地图
@@ -207,11 +241,11 @@ void GameMap::cacheStaticMap()
 void GameMap::paintEvent(QPaintEvent* event)
 {
 	Q_UNUSED(event);
-	QWidget::paintEvent(event);
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
 	QColor gridColor(GRAY);
 
+	//qDebug() << "Painting...";
 	// 绘制缓存的静态背景
 	painter.drawPixmap(0, 0, cachedStaticMap);
 
@@ -242,6 +276,7 @@ void GameMap::paintEvent(QPaintEvent* event)
 	{
 		painter.drawPixmap(mouseX, mouseY, trashToPlace[rotationState].scaled(GRID_SIZE, GRID_SIZE, Qt::KeepAspectRatio));
 	}
+	//qDebug() << "Painted!";
 }
 
 // 鼠标单击某按钮后，标记为可以放下该物品
@@ -271,13 +306,44 @@ void GameMap::mouseMoveEvent(QMouseEvent* event)
 	newMousePosition.setX(mouseX);
 	newMousePosition.setY(mouseY);
 
-	// 只在鼠标位置改变时更新，减少重绘次数
-	if (newMousePosition != mousePosition)
+	// 只在鼠标所在格子改变时更新，减少重绘次数
+	if ((newMousePosition.x() / GRID_SIZE != mousePosition.x() / GRID_SIZE)
+		|| (newMousePosition.y() / GRID_SIZE != mousePosition.y() / GRID_SIZE))
 	{
 		mousePosition = newMousePosition;
 		if (canPlaceBelt || canPlaceMiner || canPlaceCutter || canPlaceTrash)
 		{
+			qDebug() << "Mouse moved to:" << mousePosition << "updating";
 			update();
+			qDebug() << "Mouse moved updated";
+		}
+
+		// 拖动删除物品
+		if (isDeleting)
+		{
+			deleteDeviceAt(event->pos());
+			for (auto it = mineralList.begin(); it != mineralList.end();)
+			{
+				Mineral* mineral = *it;
+				if (mineral == nullptr)
+				{
+					break;
+				}
+				else if (mineral != nullptr && mineral->geometry().contains(newMousePosition))
+				{
+					mineral->hide();
+					mineral->update();
+					mineral->deleteLater();
+					it = mineralList.erase(it); // 从容器中移除对象
+				}
+				else
+				{
+					++it;
+				}
+			}
+			qDebug() << "Deleting updating";
+			update();
+			qDebug() << "Deleting updated";
 		}
 	}
 
@@ -305,31 +371,7 @@ void GameMap::mouseMoveEvent(QMouseEvent* event)
 		}
 	}
 
-	// 拖动删除物品
-	if (isDeleting)
-	{
-		deleteDeviceAt(event->pos());
-		for (auto it = mineralList.begin(); it != mineralList.end();)
-		{
-			Mineral* mineral = *it;
-			if (mineral == nullptr)
-			{
-				break;
-			}
-			else if (mineral != nullptr && mineral->geometry().contains(newMousePosition))
-			{
-				mineral->hide();
-				mineral->update();
-				mineral->deleteLater();
-				it = mineralList.erase(it); // 从容器中移除对象
-			}
-			else
-			{
-				++it;
-			}
-		}
-		update();
-	}
+
 }
 
 // 左 / 右键单击事件：放置物品 / 删除物品及取消选中
@@ -365,7 +407,9 @@ void GameMap::mousePressEvent(QMouseEvent* event)
 		canPlaceCutter = false;
 		canPlaceTrash = false;
 		deleteDeviceAt(event->pos());
+		qDebug() << "Right clicked updating";
 		update();
+		qDebug() << "Right clicked updated";
 	}
 }
 
@@ -377,7 +421,9 @@ void GameMap::mouseReleaseEvent(QMouseEvent* event)
 		rotationState = 0;
 		isPlacingBelt = false;
 		canPlaceBelt = false;
+		qDebug() << "Left clicked updating";
 		update();
+		qDebug() << "Left clicked updated";
 	}
 
 	if (event->button() == Qt::RightButton)
@@ -420,14 +466,27 @@ void GameMap::rightClicked(Device* device)
 	device->deleteLater();
 }
 
-// R 键按下事件：旋转操作
+// 键盘按下事件：旋转 / 退出操作
 void GameMap::keyPressEvent(QKeyEvent* event)
 {
 	if ((canPlaceBelt || canPlaceMiner || canPlaceCutter || canPlaceTrash) && event->key() == Qt::Key_R)
 	{
 		rotationState = (rotationState + 1) % 4;
+		qDebug() << "Rotated to state:" << rotationState << "updating";
 		update();
-		qDebug() << "Rotated to state:" << rotationState;
+		qDebug() << "Rotated to state:" << rotationState << "updated";
+	}
+
+	if (event->key() == Qt::Key_Escape)
+	{
+		saveGame("./assets/save/save.ini");
+		QMessageBox::StandardButton reply;
+		reply = QMessageBox::question(this, "退出", "当前进度已保存。确定退出游戏？",
+			QMessageBox::Yes | QMessageBox::No);
+		if (reply == QMessageBox::Yes)
+		{
+			QApplication::quit();
+		}
 	}
 }
 
@@ -476,7 +535,9 @@ void GameMap::placeBeltAt(const QPoint& pos)
 	connect(newBelt, &Belt::rightClicked, this, &GameMap::rightClicked); // 连接右键点击信号
 	currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newBelt; // 加入地图的 devices
 	beltList.append(newBelt); // 记录传送带的指针
+	qDebug() << "Belt placed at:" << pixelX << pixelY << "updating";
 	update();
+	qDebug() << "Belt placed at:" << pixelX << pixelY << "updated";
 }
 
 // 放置开采机的实现过程
@@ -485,6 +546,7 @@ void GameMap::placeMinerAt(const QPoint& pos)
 	// 计算放置的位置，确保在格子内，然后计算最近的格子坐标（单位：像素）
 	int pixelX = (pos.x() / GRID_SIZE) * GRID_SIZE;
 	int pixelY = (pos.y() / GRID_SIZE) * GRID_SIZE;
+
 	// 如果超出地图范围，则不能放置
 	if (pixelX < 0 || pixelX >= WINDOW_WIDTH || pixelY < 0 || pixelY >= WINDOW_HEIGHT)
 	{
@@ -497,7 +559,9 @@ void GameMap::placeMinerAt(const QPoint& pos)
 	{
 		canPlaceMiner = false;
 		rotationState = 0;
+		qDebug() << "Miner placed at:" << pixelX << pixelY << "updating";
 		update();
+		qDebug() << "Miner placed at:" << pixelX << pixelY << "updated";
 		return;
 	}
 
@@ -518,7 +582,9 @@ void GameMap::placeMinerAt(const QPoint& pos)
 	currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newMiner; // 加入地图的 devices
 	canPlaceMiner = false; // 重置状态
 	rotationState = 0; // 重置状态
+	qDebug() << "Miner placed at:" << pixelX << pixelY << "updating";
 	update();
+	qDebug() << "Miner placed at:" << pixelX << pixelY << "updated";
 }
 
 // 放置切割机的实现过程
@@ -540,7 +606,9 @@ void GameMap::placeCutterAt(const QPoint& pos)
 	{
 		canPlaceCutter = false;
 		rotationState = 0;
+		qDebug() << "Cutter placed at:" << pixelX << pixelY << "updating";
 		update();
+		qDebug() << "Cutter placed at:" << pixelX << pixelY << "updated";
 		return;
 	}
 	Cutter* newCutter = new Cutter(&currentMap.devices, this);
@@ -559,7 +627,9 @@ void GameMap::placeCutterAt(const QPoint& pos)
 	}
 	canPlaceCutter = false; // 重置状态
 	rotationState = 0; // 重置状态
+	qDebug() << "Cutter placed at:" << pixelX << pixelY << "updating";
 	update();
+	qDebug() << "Cutter placed at:" << pixelX << pixelY << "updated";
 }
 
 // 放置垃圾桶的实现过程
@@ -579,7 +649,9 @@ void GameMap::placeTrashAt(const QPoint& pos)
 	{
 		canPlaceTrash = false;
 		rotationState = 0;
+		qDebug() << "Trash placed at:" << pixelX << pixelY << "updating";
 		update();
+		qDebug() << "Trash placed at:" << pixelX << pixelY << "updated";
 		return;
 	}
 	Trash* newTrash = new Trash(this);
@@ -590,7 +662,9 @@ void GameMap::placeTrashAt(const QPoint& pos)
 	currentMap.devices[pixelX / GRID_SIZE][pixelY / GRID_SIZE] = newTrash;// 加入地图的 devices
 	canPlaceTrash = false; // 重置状态
 	rotationState = 0; // 重置状态
+	qDebug() << "Trash placed at:" << pixelX << pixelY << "updating";
 	update();
+	qDebug() << "Trash placed at:" << pixelX << pixelY << "updated";
 }
 
 // 实现传送带自动转弯
@@ -755,6 +829,7 @@ void GameMap::saveGame(const QString& fileName) {
 	settings.setValue("beltSpeed", BELT_SPEED);
 	settings.setValue("minerSpeed", MINER_SPEED);
 	settings.setValue("cutterSpeed", CUTTER_SPEED);
+	settings.setValue("taskIndex", currentTaskIndex);
 	settings.endGroup();
 
 	// 保存设备信息
@@ -808,6 +883,7 @@ void GameMap::loadGame(const QString& fileName) {
 	BELT_SPEED = settings.value("beltSpeed").toInt();
 	MINER_SPEED = settings.value("minerSpeed").toInt();
 	CUTTER_SPEED = settings.value("cutterSpeed").toInt();
+	currentTaskIndex = settings.value("taskIndex").toInt();
 	settings.endGroup();
 
 	// 加载设备
@@ -830,8 +906,20 @@ void GameMap::loadGame(const QString& fileName) {
 	qDebug() << "Devices loaded successfully!";
 
 	cacheStaticMap(); // 缓存静态背景
+	qDebug() << "Game loaded updating";
 	update();
 	qDebug() << "Game loaded successfully!";
+
+	// 模拟一次鼠标点击事件
+	// （因为有个 bug 难以修复……但是我发现加载后点击一次鼠标可以莫名其妙地通过这个 bug……所以这里模拟一次鼠标点击 /无奈）
+	QTimer::singleShot(100, this, [this]() {
+		QPoint clickPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2); // 模拟点击窗口中心位置
+		QMouseEvent* clickEvent = new QMouseEvent(QEvent::MouseButtonPress, clickPosition, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+		QCoreApplication::postEvent(this, clickEvent);
+		QMouseEvent* releaseEvent = new QMouseEvent(QEvent::MouseButtonRelease, clickPosition, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+		QCoreApplication::postEvent(this, releaseEvent);
+		qDebug() << "Simulated mouse click at" << clickPosition;
+		});
 }
 
 // 根据类型ID创建设备
@@ -847,8 +935,37 @@ void GameMap::createDeviceByTypeID(int typeID, int i, int j)
 	}
 }
 
+// 自动保存游戏
 void GameMap::autoSaveGame()
 {
 	QString fileName = "./assets/save/save.ini";
 	saveGame(fileName);
+}
+
+// 更新任务进度的方法
+void GameMap::updateTaskProgress(QVector<int>& collectedMines)
+{
+	tasks[currentTaskIndex].currentCount = collectedMines[tasks[currentTaskIndex].mineralType];
+	updateTaskDisplay();
+	if (tasks[currentTaskIndex].currentCount >= tasks[currentTaskIndex].targetCount)
+	{
+		if (currentTaskIndex < tasks.size() - 1)
+		{
+			completionWidget->show();
+			currentTaskIndex++;
+		}
+	}
+}
+
+void GameMap::updateTaskDisplay()
+{
+	const Task& currentTask = tasks[currentTaskIndex];
+	if (currentTaskIndex == tasks.size() - 1)
+	{
+		taskLabel->setText(QString(""));
+		taskIconLabel->setPixmap(currentTask.icon);
+		return;
+	}
+	taskLabel->setText(QString("%1<br>当前进度：%2/%3").arg(currentTask.description).arg(currentTask.currentCount).arg(currentTask.targetCount));
+	taskIconLabel->setPixmap(currentTask.icon.scaled(40, 40, Qt::KeepAspectRatio));
 }

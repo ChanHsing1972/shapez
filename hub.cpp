@@ -1,12 +1,14 @@
 // hub.cpp
 #include "hub.h"
 
-Hub::Hub(QWidget* parent) : Device(parent), mineralCount(0)
+Hub::Hub(QWidget* parent) : Device(parent), mineralCount(0), mineralTypeCount(4, 0)
 {
 	setFixedSize(GRID_SIZE * 2 + 2, GRID_SIZE * 2 - 2); // 假设 hub 占据 2x2 的格子
 	typeID = 4;
 
 	pixmap.load("./assets/images/hub_small.png");
+
+	gameMap = qobject_cast<GameMap*>(parent); // 初始化 GameMap 引用
 }
 
 void Hub::setPosition(int x, int y)
@@ -31,9 +33,14 @@ void Hub::paintEvent(QPaintEvent* event)
 	painter.drawText(rect(), Qt::AlignCenter, QString::number(mineralCount));
 }
 
-void Hub::increaseCount()
+void Hub::increaseMineralCount(int mineralType)
 {
 	mineralCount++;
+	mineralTypeCount[mineralType]++;
+	if (gameMap)
+	{
+		gameMap->updateTaskProgress(mineralTypeCount); // 更新任务进度
+	}
 	updateIcon();
 }
 
