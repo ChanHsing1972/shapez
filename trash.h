@@ -1,3 +1,7 @@
+// Created by Chenxin.
+// 垃圾桶类，继承自Device类，
+// 用于显示垃圾桶图标，实现拖拽删除功能。
+
 #ifndef TRASH_H
 #define TRASH_H
 

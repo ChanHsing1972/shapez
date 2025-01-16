@@ -1,4 +1,6 @@
-// shopPage.h
+// Created by Chenxin.
+// 商店页面类，实现商店页面的功能，包括购买升级设备等。
+
 #pragma execution_character_set("utf-8")
 #ifndef SHOPPAGE_H
 #define SHOPPAGE_H
@@ -40,6 +42,9 @@ private:
 	QLabel* minerLevelLabel;
 	QLabel* beltLevelLabel;
 	QLabel* cutterLevelLabel;
+	QLabel* minerCostLabel;
+	QLabel* beltCostLabel;
+	QLabel* cutterCostLabel;
 	QPushButton* minerButton;
 	QPushButton* beltButton;
 	QPushButton* cutterButton;

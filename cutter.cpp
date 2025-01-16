@@ -1,7 +1,10 @@
+// Created by ChenXin.
+// 切割机类的实现
+
 #include "cutter.h"
 
 Cutter::Cutter(QVector<QVector<Device*>>* devices, QWidget* parent)
-	: Device(parent), devices(devices), pixmap(4)
+	: Device(parent), devices(devices), pixmap(4), inputDirection(0), outputDirection(0)
 {
 	typeID = 2;
 

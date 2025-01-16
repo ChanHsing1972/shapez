@@ -1,5 +1,7 @@
-#include "belt.h"
+// Created by ChenXin.
+// 传送带类的实现
 
+#include "belt.h"
 
 Belt::Belt(QWidget* parent) : Device(parent), pixmap(12)
 {

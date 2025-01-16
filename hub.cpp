@@ -1,9 +1,11 @@
-// hub.cpp
+// Created by ChenXin.
+// 交付中心类的实现。
+
 #include "hub.h"
 
 Hub::Hub(QWidget* parent) : Device(parent), mineralCount(0), mineralTypeCount(4, 0)
 {
-	setFixedSize(GRID_SIZE * 2 + 2, GRID_SIZE * 2 - 2); // 假设 hub 占据 2x2 的格子
+	setFixedSize(GRID_SIZE * 2 + 2, GRID_SIZE * 2 - 2);
 	typeID = 4;
 
 	pixmap.load("./assets/images/hub_small.png");
@@ -46,7 +48,6 @@ void Hub::increaseMineralCount(int mineralType)
 
 void Hub::updateIcon()
 {
-	// 触发重绘事件，更新图标
 	update();
 }
 

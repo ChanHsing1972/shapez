@@ -1,4 +1,6 @@
-// parameters.cpp
+// Created by Chenxin.
+// 参数类，包含窗口大小、按钮大小、方向、矿物、颜色、设备、参数等信息。
+
 #include "parameters.h"
 
 int WINDOW_WIDTH = 1920;
@@ -15,3 +17,7 @@ int CUTTER_SPEED = 1000; // 1 秒切割一个矿物
 int minerLevel = 1;
 int beltLevel = 1;
 int cutterLevel = 1;
+
+int minerCost = 10;
+int beltCost = 10;
+int cutterCost = 5;

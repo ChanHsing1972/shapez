@@ -1,6 +1,9 @@
+// Created by ChenXin.
+// Device 类的实现。
+
 #include "device.h"
 
-Device::Device(QWidget* parent) : QWidget(parent), posX(0), posY(0) {}
+Device::Device(QWidget* parent) : QWidget(parent), posX(0), posY(0), typeID(0) {}
 
 void Device::setPosition(int x, int y)
 {

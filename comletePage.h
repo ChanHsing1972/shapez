@@ -1,3 +1,6 @@
+// Created by ChenXin.
+// 显示完成页面，包括完成提示和继续按钮。
+
 #pragma execution_character_set("utf-8")
 #ifndef COMPLETEPAGE_H
 #define COMPLETEPAGE_H
@@ -11,7 +14,8 @@
 #include <QPropertyAnimation>
 #include "parameters.h"
 
-class CompletePage : public QWidget {
+class CompletePage : public QWidget
+{
 	Q_OBJECT
 
 public:
@@ -26,4 +30,4 @@ private:
 	bool eventFilter(QObject* watched, QEvent* event);
 };
 
-#endif // COMPLETEPAGE_H
+#endif

@@ -1,3 +1,6 @@
+// Created by Chenxin.
+// 垃圾桶类的实现。
+
 #include "Trash.h"
 
 Trash::Trash(QWidget* parent) : Device(parent), pixmap(4)

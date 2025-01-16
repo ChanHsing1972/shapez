@@ -1,9 +1,13 @@
-// mineral.cpp
+// Created by ChenXin.
+// 矿物类的实现。
+
 #include "mineral.h"
 
 Mineral::Mineral(QVector<QVector<Device*>>* devices, int mineralType, QWidget* parent)
-	: QWidget(parent), pixelX(0), pixelY(0), minerDirection(0), devices(devices), mineralType(mineralType)
+	: QWidget(parent), pixelX(0), pixelY(0), minerDirection(0),
+	devices(devices), mineralType(mineralType), direction(0)
 {
+	// 根据矿物类型设置矿物尺寸
 	switch (mineralType)
 	{
 	case CYCLE_MINE:case RECT_MINE:
@@ -27,9 +31,10 @@ Mineral::Mineral(QVector<QVector<Device*>>* devices, int mineralType, QWidget* p
 	};
 	mineralImage.load(mineralImages.value(mineralType));
 
+	// 创建定时器
 	moveTimer = new QTimer(this);
 	checkTimer = new QTimer(this);
-	connect(moveTimer, &QTimer::timeout, this, &Mineral::moving); // 每次触发定时器，移动矿物一次
+	connect(moveTimer, &QTimer::timeout, this, &Mineral::moving); // 每次触发定时器时，移动矿物一次
 	connect(checkTimer, &QTimer::timeout, this, &Mineral::checkForBelt); // 检查矿物前方是否有传送带
 }
 
@@ -64,7 +69,7 @@ void Mineral::startMoving()
 void Mineral::stopMoving()
 {
 	moveTimer->stop();
-	// 矿物停止移动后，确保位置在格子中心（以防万一）
+	// 矿物停止移动后，确保位置在格子中心
 	pixelX = (pixelX / GRID_SIZE) * GRID_SIZE;
 	pixelY = (pixelY / GRID_SIZE) * GRID_SIZE;
 	move(pixelX, pixelY);
@@ -79,25 +84,25 @@ void Mineral::moving()
 	int offsetY = pixelY % GRID_SIZE; // 矿物在格子里的偏移量（单位：像素）
 	bool directionChanged = false; // 标记方向是否改变
 
-	// 首先检查矿物是否在地图范围内
+	// 1. 首先检查矿物是否在地图范围内
 	if (pixelX <= 0 || pixelY <= 0 || pixelX >= WINDOW_WIDTH || pixelY >= WINDOW_HEIGHT)
 	{
 		qDebug() << "STOP 0: Out of bonnd!";
 		return;
 	}
 
-	// 先根据开采器的方向移动矿物
+	// 2. 根据开采器的方向移动矿物
 	if (Miner* miner = dynamic_cast<Miner*>((*devices)[gridX][gridY]))
 	{
 		direction = minerDirection;
 	}
-	// 如果矿物在传送带上，则根据传送带的方向移动矿物
+	// a. 如果矿物在传送带上，则根据传送带的方向移动矿物
 	else if (Belt* belt = dynamic_cast<Belt*>((*devices)[gridX][gridY]))
 	{
 		if (offsetX == 0 && offsetY == 0) // 确保矿物走完一个格子再转弯
 		{
 			int newDirection = belt->getRotationState();
-			if (direction != newDirection)
+			if (direction != newDirection) // 如果矿物的方向和传送带的方向不一致，则更新矿物的方向
 			{
 				direction = newDirection;
 				directionChanged = true; // 记录方向已改变
@@ -107,14 +112,13 @@ void Mineral::moving()
 	else if (dynamic_cast<Hub*>((*devices)[gridX][gridY])
 		|| dynamic_cast<Trash*>((*devices)[gridX][gridY])) {
 	}
-	// 如果矿物不在设备上，则直接删除
+	// b. 如果矿物不在设备上，则直接删除
 	else
 	{
 		qDebug() << "STOP 1: Not on devices!";
 		hide(); // 隐藏矿物
-		// 从 mineralList 中移除矿物对象
 		auto it = std::find_if(GameMap::mineralList.begin(), GameMap::mineralList.end(),
-			[this](Mineral* m) { return m == this; });
+			[this](Mineral* m) { return m == this; }); // 从 mineralList 中移除矿物对象
 		if (it != GameMap::mineralList.end())
 		{
 			GameMap::mineralList.erase(it); // 从容器中移除对象
@@ -123,7 +127,7 @@ void Mineral::moving()
 		return;
 	}
 
-	// 如果方向改变，则本次只更新方向，等待下一次移动
+	// 3. 如果方向改变，则本次只更新方向，等待下一次移动
 	if (directionChanged)
 	{
 		move(pixelX, pixelY);
@@ -132,13 +136,12 @@ void Mineral::moving()
 		return;
 	}
 
-	// 检查矿物是否到达垃圾桶、切割机或交付中心
+	// 4. 检查矿物是否到达垃圾桶、切割机或交付中心
 	if (checkIfAtTrash() || checkIfAtCutter() || checkIfAtHub())
 	{
 		hide(); // 隐藏矿物
-		// 从 mineralList 中移除矿物对象
 		auto it = std::find_if(GameMap::mineralList.begin(), GameMap::mineralList.end(),
-			[this](Mineral* m) { return m == this; });
+			[this](Mineral* m) { return m == this; }); // 从 mineralList 中移除矿物对象
 		if (it != GameMap::mineralList.end())
 		{
 			GameMap::mineralList.erase(it); // 从容器中移除对象
@@ -147,8 +150,8 @@ void Mineral::moving()
 		return;
 	}
 
-	// 1. 检查矿物前方是否有矿物，实现矿物之间的碰撞检测
-	// 2. 检查矿物前方是否有传送带，如果没有，则停止移动，确保矿物最后停留在传送带上
+	// 5. 检查矿物前方是否有矿物，实现矿物之间的碰撞检测
+	// 6. 检查矿物前方是否有传送带，如果没有，则停止移动，确保矿物最后停留在传送带上
 	if (isMineralAhead() || !isBeltAhead())
 	{
 		stopMoving(); // 停止移动
@@ -156,7 +159,7 @@ void Mineral::moving()
 		return;
 	}
 
-	// 完成上述所有检查操作后，移动矿物
+	// 7. 完成上述所有检查操作后，移动矿物
 	switch (direction)
 	{
 	case _W:case _D_W:case _A_W:
@@ -309,7 +312,7 @@ bool Mineral::checkIfAtCutter()
 		return false; // 矿物不在地图范围内
 	}
 
-	// 如果到达切割机！
+	// 如果到达切割机
 	if (Cutter* cutter = dynamic_cast<Cutter*>((*devices)[nextGridX][nextGridY]))
 	{
 		if (offsetX == 0 && offsetY == 0 && direction == cutter->getRotationState())
@@ -326,19 +329,21 @@ bool Mineral::checkIfAtCutter()
 				{_D, {0, 1}}
 			};
 			int rotationState = cutter->getRotationState();
-			int offsetX = directions.at(rotationState).first;
-			int offsetY = directions.at(rotationState).second;
+			int outputOffsetX = directions.at(rotationState).first;
+			int outputOffsetY = directions.at(rotationState).second;
 
 			// 先判断切割机堵塞情况
 			// 如果切割机前方有矿物，则堵塞
 			if (isMineralAt(outputGridX, outputGridY)
-				|| isMineralAt(outputGridX + offsetX, outputGridY + offsetY))
+				|| isMineralAt(outputGridX + outputOffsetX, outputGridY + outputOffsetY))
 			{
 				return false;
 			}
+
 			// 检查切割机 1 口和 2 口前方的设备
 			Device* device1 = (*devices)[outputGridX][outputGridY];
-			Device* device2 = (*devices)[outputGridX + offsetX][outputGridY + offsetY];
+			Device* device2 = (*devices)[outputGridX + outputOffsetX][outputGridY + outputOffsetY];
+
 			// 前方只有在两传送带、一传送带一垃圾桶、两垃圾桶时为 true，其他时候均为 false
 			bool condition1 = dynamic_cast<Belt*>(device1) && dynamic_cast<Belt*>(device2);
 			bool condition2 = (dynamic_cast<Belt*>(device1) && dynamic_cast<Trash*>(device2))
@@ -370,7 +375,7 @@ bool Mineral::checkIfAtCutter()
 
 			// 设置切割后新矿物的位置和方向
 			halfMineral1->setPosition(outputGridX * GRID_SIZE, outputGridY * GRID_SIZE);
-			halfMineral2->setPosition((outputGridX + offsetX) * GRID_SIZE, (outputGridY + offsetY) * GRID_SIZE);
+			halfMineral2->setPosition((outputGridX + outputOffsetX) * GRID_SIZE, (outputGridY + outputOffsetY) * GRID_SIZE);
 			halfMineral1->setDirection(rotationState);
 			halfMineral2->setDirection(rotationState);
 			GameMap::mineralList.append(halfMineral1); // 将新生成的矿物添加到全局列表

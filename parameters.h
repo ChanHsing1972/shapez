@@ -1,3 +1,6 @@
+// Created by Chenxin.
+// 参数类，包含窗口大小、按钮大小、方向、矿物、颜色、设备、参数等信息。
+
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
@@ -73,9 +76,15 @@ extern int WINDOW_HEIGHT;
 extern int BELT_SPEED;
 extern int MINER_SPEED;
 extern int CUTTER_SPEED;
+
 extern int minerLevel;
 extern int beltLevel;
 extern int cutterLevel;
+
+extern int minerCost;
+extern int beltCost;
+extern int cutterCost;
+
 #define MOVE_FREQUENCY 10
 #define CHECK_FREQUENCY 100
 #define EDGE_SIZE 5

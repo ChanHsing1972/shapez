@@ -1,13 +1,16 @@
+// Created by ChenXin.
+// 帮助页面的类的实现
+
 #include "helpPage.h"
 
-HelpPage::HelpPage(QWidget* parent) : QDialog(parent) {
+HelpPage::HelpPage(QWidget* parent) : QDialog(parent)
+{
 	setWindowTitle("帮助");
-	setFixedSize(900, 1200);
+	setFixedSize(900, 1250);
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
-
-	// 添加说明文本，使用 HTML 格式
 	QLabel* helpTextLabel = new QLabel(this);
+
 	helpTextLabel->setText(
 		"<style>"
 		"p { line-height: 1.2; }"
@@ -16,8 +19,6 @@ HelpPage::HelpPage(QWidget* parent) : QDialog(parent) {
 		"<h2>关于</h2>"
 		"<p>此程序是一个模仿<a href='http://shapez.io/'>异形工厂</a>（Shapez）的游戏。<br>\
 		    您可在此处找到游戏方法及注意事项。</p>"
-
-
 		"<h3>说明</h3>"
 		"<p>此程序由<a href='https://chenxinchen.us.kg/'>尘心</a>独立开发制作，图像素材来自<a href='https://github.com/jiangqianyu/MyShapez'>此仓库</a>。</p>"
 		"<h3>游戏方法</h3>"
@@ -47,15 +48,12 @@ HelpPage::HelpPage(QWidget* parent) : QDialog(parent) {
 	QString fontYaHeiFamily = QFontDatabase::applicationFontFamilies(fontYaHei).at(0);
 	QFont customFontYaHei(fontYaHeiFamily, 12);
 
-	helpTextLabel->setFont(customFontYaHei);
+	helpTextLabel->setFont(customFontYaHei); // 设置字体
 	helpTextLabel->setContentsMargins(0, 0, 0, 0); // 设置边距
 	helpTextLabel->setOpenExternalLinks(true); // 允许打开超链接
 
 	layout->addWidget(helpTextLabel);
-
-	// 添加一个弹性空间，将内容推至顶部
 	layout->addSpacerItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
 
 	// 添加关闭按钮
 	QPushButton* closeButton = new QPushButton("关闭", this);
@@ -81,13 +79,9 @@ HelpPage::HelpPage(QWidget* parent) : QDialog(parent) {
 		"   padding-left: 2px;"
 		"   padding-top: 2px;"
 		"}");
-
 	layout->addWidget(closeButton);
 	connect(closeButton, &QPushButton::clicked, this, &HelpPage::accept);
 
-	// 设置整体布局边距
-	layout->setContentsMargins(60, 60, 60, 60); // 左、上、右、下边距
-
-	// 设置布局的垂直对齐方式为顶部
-	layout->setAlignment(Qt::AlignTop); // 确保内容靠顶部
+	layout->setContentsMargins(60, 60, 60, 60);
+	layout->setAlignment(Qt::AlignTop);
 }

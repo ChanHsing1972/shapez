@@ -1,3 +1,7 @@
+// Created by ChenXin.
+// 传送带类，继承自 Device 类，
+// 用于显示传送带的图像和处理传送带的点击事件。
+
 #ifndef BELT_H
 #define BELT_H
 

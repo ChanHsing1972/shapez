@@ -1,3 +1,6 @@
+// Created by Chenxin.
+// 欢迎界面类的实现。
+
 #include "welcomePage.h"
 #include <QFontDatabase>
 

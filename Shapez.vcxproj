@@ -43,7 +43,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>5.14.2_msvc2017_64</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>core;gui;multimedia;widgets;multimediawidgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -95,7 +95,6 @@
   <ItemGroup>
     <ClCompile Include="comletePage.cpp" />
     <ClCompile Include="cutter.cpp" />
-    <ClCompile Include="gameState.cpp" />
     <ClCompile Include="helpPage.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
@@ -131,7 +130,6 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="comletePage.h" />
-    <ClInclude Include="save.h" />
     <QtMoc Include="shopPage.h" />
     <QtMoc Include="trash.h" />
     <QtMoc Include="welcomePage.h" />
@@ -139,7 +137,6 @@
     <QtMoc Include="belt.h" />
     <QtMoc Include="cutter.h" />
     <QtMoc Include="device.h" />
-    <ClInclude Include="gameState.h" />
     <QtMoc Include="helpPage.h" />
     <QtMoc Include="hub.h" />
     <QtMoc Include="mineral.h" />

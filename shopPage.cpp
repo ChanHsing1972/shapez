@@ -1,5 +1,8 @@
-// shopPage.cpp
+// Created by Chenxin.
+// 商店页面类的实现。
+
 #include "shopPage.h"
+
 #define BUTTON_WIDTH 180
 #define BUTTON_HEIGHT 60
 
@@ -49,7 +52,7 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	minerLevelLabel = new QLabel(QString("等级 %1").arg(minerLevel), this);
 	minerLevelLabel->setFont(customFontYaHei);
 	minerLevelLabel->setStyleSheet(costLabelStyleSheet);
-	QLabel* minerCostLabel = new QLabel("消耗 5 摩拉", this);
+	minerCostLabel = new QLabel(QString("消耗 %1 摩拉").arg(minerCost), this);
 	minerCostLabel->setFont(customFontYaHei);
 	minerCostLabel->setStyleSheet(costLabelStyleSheet);
 	minerButton = new QPushButton("升级", this);
@@ -79,7 +82,7 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	beltLevelLabel = new QLabel(QString("等级 %1").arg(beltLevel), this);
 	beltLevelLabel->setFont(customFontYaHei);
 	beltLevelLabel->setStyleSheet(costLabelStyleSheet);
-	QLabel* beltCostLabel = new QLabel("消耗 5 摩拉", this);
+	beltCostLabel = new QLabel(QString("消耗 %1 摩拉").arg(beltCost), this);
 	beltCostLabel->setFont(customFontYaHei);
 	beltCostLabel->setStyleSheet(costLabelStyleSheet);
 	beltButton = new QPushButton("升级", this);
@@ -108,7 +111,7 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	cutterLevelLabel = new QLabel(QString("等级 %1").arg(cutterLevel), this);
 	cutterLevelLabel->setFont(customFontYaHei);
 	cutterLevelLabel->setStyleSheet(costLabelStyleSheet);
-	QLabel* cutterCostLabel = new QLabel("消耗 5 摩拉", this);
+	cutterCostLabel = new QLabel(QString("消耗 %1 摩拉").arg(cutterCost), this);
 	cutterCostLabel->setFont(customFontYaHei);
 	cutterCostLabel->setStyleSheet(costLabelStyleSheet);
 	cutterButton = new QPushButton("升级", this);
@@ -167,7 +170,7 @@ void ShopPage::applyMinerSpeed()
 {
 	if (Hub* hub = dynamic_cast<Hub*>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
 	{
-		if (hub->getMineralCount() < 5)
+		if (hub->getMineralCount() < 10)
 		{
 			QMessageBox::warning(this, "失败", "矿物数量不足，无法修改开采器速度。");
 			return;
@@ -177,12 +180,14 @@ void ShopPage::applyMinerSpeed()
 			QMessageBox::warning(this, "失败", "已达到最大开采速度。");
 			return;
 		}
-		hub->reduceMineralCount(5);
+		hub->reduceMineralCount(minerCost);
 	}
 	MINER_SPEED /= 2;
 
 	minerLevel++;
+	minerCost *= 2;
 	minerLevelLabel->setText(QString("等级 %1").arg(minerLevel));
+	minerCostLabel->setText(QString("消耗 %1 摩拉").arg(minerCost));
 
 	QMessageBox::information(this, "成功", "已修改开采器速度。");
 }
@@ -191,7 +196,7 @@ void ShopPage::applyBeltSpeed()
 {
 	if (Hub* hub = dynamic_cast<Hub*>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
 	{
-		if (hub->getMineralCount() < 5)
+		if (hub->getMineralCount() < 15)
 		{
 			QMessageBox::warning(this, "失败", "矿物数量不足，无法修改传送带速度。");
 			return;
@@ -201,12 +206,14 @@ void ShopPage::applyBeltSpeed()
 			QMessageBox::warning(this, "失败", "已达到最大传送速度。");
 			return;
 		}
-		hub->reduceMineralCount(5);
+		hub->reduceMineralCount(beltCost);
 	}
 	BELT_SPEED++;
 
 	beltLevel++;
+	beltCost *= 2;
 	beltLevelLabel->setText(QString("等级 %1").arg(beltLevel));
+	beltCostLabel->setText(QString("消耗 %1 摩拉").arg(beltCost));
 
 	QMessageBox::information(this, "成功", "已修改传送带速度。");
 }
@@ -225,12 +232,14 @@ void ShopPage::applyCutterSpeed()
 			QMessageBox::warning(this, "失败", "已达到最大切割速度。");
 			return;
 		}
-		hub->reduceMineralCount(5);
+		hub->reduceMineralCount(cutterCost);
 	}
 	CUTTER_SPEED /= 4;
 
 	cutterLevel++;
+	cutterCost *= 2;
 	cutterLevelLabel->setText(QString("等级 %1").arg(cutterLevel));
+	cutterCostLabel->setText(QString("消耗 %1 摩拉").arg(cutterCost));
 
 	QMessageBox::information(this, "成功", "已修改切割机速度。");
 }

@@ -1,10 +1,16 @@
+// Created by ChenXin.
+// 显示完成页，包括显示任务完成的文字和继续按钮。
+
 #include "comletePage.h"
 
-CompletePage::CompletePage(QWidget* parent) : QWidget(parent) {
+CompletePage::CompletePage(QWidget* parent) : QWidget(parent)
+{
+	// 设置完成页的背景颜色和窗口属性
 	setGeometry(0, 0, parent->width(), parent->height());
 	setStyleSheet("background-color: rgb(230,230,230)");
 	setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 
+	// 设置字体
 	int fontPingFang = QFontDatabase::addApplicationFont("./PingFang-Regular.ttf");
 	QString fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
 	QFont customFontPingFang(fontPingFangFamily);
@@ -36,9 +42,10 @@ CompletePage::CompletePage(QWidget* parent) : QWidget(parent) {
 	continueButton = new QPushButton("继续", this);
 	continueButton->setFont(customFontPingFang);
 	continueButton->setStyleSheet(buttonStyleSheet);
-	continueButton->setGeometry(parent->width() / 2 - 50, parent->height() * 2 / 3, 100, 50);
+	continueButton->setGeometry(parent->width() / 2 - 50, parent->height() * 2 / 3, 120, 60);
 	connect(continueButton, &QPushButton::clicked, this, &CompletePage::continueClicked);
 
+	// 添加按钮动效
 	continueButton->setAttribute(Qt::WA_Hover, true);
 	QGraphicsOpacityEffect* continueOpacityEffect = new QGraphicsOpacityEffect(continueButton);
 	continueButton->setGraphicsEffect(continueOpacityEffect);
@@ -48,6 +55,7 @@ CompletePage::CompletePage(QWidget* parent) : QWidget(parent) {
 	hide();
 }
 
+// 添加按钮动效
 bool CompletePage::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched == continueButton && event->type() == QEvent::Enter)

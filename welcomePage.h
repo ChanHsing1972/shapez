@@ -1,3 +1,6 @@
+// Created by Chenxin.
+// 欢迎界面类，用于显示游戏的欢迎界面。
+
 #pragma execution_character_set("utf-8")
 #ifndef WELCOMEPAGE_H
 #define WELCOMEPAGE_H
@@ -13,7 +16,8 @@
 #include <QMediaPlaylist>
 #include "parameters.h"
 
-class WelcomePage : public QWidget {
+class WelcomePage : public QWidget
+{
 	Q_OBJECT
 
 public:

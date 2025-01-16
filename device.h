@@ -1,4 +1,6 @@
-// 传送带、采矿机、垃圾桶等所有工具的基类
+// Created by ChenXin.
+// 定义 Device 类，
+// 是传送带、开采器、切割机、垃圾桶等所有工具的基类。
 
 #ifndef DEVICE_H
 #define DEVICE_H
@@ -30,7 +32,7 @@ protected:
 	int typeID; // 设备类型
 
 signals:
-	void rightClicked(Device* device);
+	void rightClicked(Device* device); // 右键单击信号
 };
 
 #endif

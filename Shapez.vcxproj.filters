@@ -61,9 +61,6 @@
     <ClCompile Include="trash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gameState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="helpPage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -85,12 +82,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="parameters.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gameState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="save.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

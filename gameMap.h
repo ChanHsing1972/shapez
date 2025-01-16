@@ -1,3 +1,7 @@
+// Created by ChenXin.
+// 游戏地图类，是实现游戏主要功能的部分，
+// 包括游戏地图的绘制、物品的放置与删除、存档、任务等功能。
+
 #ifndef GAMEMAP_H
 #define GAMEMAP_H
 
@@ -26,23 +30,21 @@
 #include "comletePage.h"
 #include "mineral.h"
 #include "hub.h"
-#include "save.h"
 
-// #include "ui_gameMap.h"
 class Belt;
 class Mineral;
 class Hub;
 
-struct Task
+struct Task // 定义任务结构体
 {
-	QString description;
-	int mineralType;
-	int targetCount;
-	int currentCount;
-	QPixmap icon;
+	QString description; // 任务描述
+	int mineralType;     // 矿物类型
+	int targetCount;     // 目标数量
+	int currentCount;    // 当前数量
+	QPixmap icon;        // 任务图标
 };
 
-struct MapData
+struct MapData // 定义地图数据结构体
 {
 	// 存储矿物和障碍的位置
 	QVector<QPoint> cycleMines;
@@ -51,7 +53,7 @@ struct MapData
 	QVector<QPoint> hubSmall;
 	QVector<QVector<Device*>> devices;
 
-	MapData() :devices(WINDOW_WIDTH / GRID_SIZE * 2, QVector<Device*>(WINDOW_HEIGHT / GRID_SIZE * 2, nullptr)) {}
+	MapData() : devices(WINDOW_WIDTH / GRID_SIZE * 2, QVector<Device*>(WINDOW_HEIGHT / GRID_SIZE * 2, nullptr)) {}
 };
 
 class GameMap : public QWidget
@@ -61,30 +63,27 @@ class GameMap : public QWidget
 public:
 	GameMap(QWidget* parent = nullptr);
 	~GameMap();
-	static QVector<Mineral*> mineralList; // 全局矿物对象列表
-	void saveGame(const QString& fileName);
-	void loadGame(const QString& fileName);
-	void updateTaskProgress(QVector<int>& collectedMines);
+	static QVector<Mineral*> mineralList;                 // 全局矿物对象列表
+	void saveGame(const QString& fileName);                // 保存游戏
+	void loadGame(const QString& fileName);                // 加载游戏
+	void updateTaskProgress(QVector<int>& collectedMines); // 更新任务进度
 
 public slots:
-	// 控制淡入动画
-	void startFadeInAnimation();
+	void startFadeInAnimation(); // 控制淡入动画
 
 protected:
-	// 处理鼠标 / 键盘事件
-	void mousePressEvent(QMouseEvent* event) override;
-	void mouseMoveEvent(QMouseEvent* event) override;
-	void mouseReleaseEvent(QMouseEvent* event) override;
-	void keyPressEvent(QKeyEvent* event) override;
-	void deleteDeviceAt(const QPoint& pos);
+	// 处理鼠标/键盘事件
+	void mousePressEvent(QMouseEvent* event) override;   // 鼠标按下事件
+	void mouseMoveEvent(QMouseEvent* event) override;    // 鼠标移动事件
+	void mouseReleaseEvent(QMouseEvent* event) override; // 鼠标释放事件
+	void keyPressEvent(QKeyEvent* event) override;       // 键盘按下事件
+	void deleteDeviceAt(const QPoint& pos);              // 删除设备
 	// 当前地图数据
 	MapData currentMap;
 
-
 private:
-	// Ui::gameMapClass ui;
-
 	/*** 图标 ***/
+
 	QPixmap cycleMineImage;
 	QPixmap rectMineImage;
 	QPixmap barrierImage;
@@ -95,30 +94,23 @@ private:
 	QVector<QPixmap> cutterToPlace;
 	QVector<QPixmap> trashToPlace;
 
-	// 当前鼠标位置
-	QPoint mousePosition;
-	// 图标旋转角度
-	int rotationState = 0;
+	int rotationState = 0; // 图标旋转角度
 
 	/*** 地图 ***/
 
-	// 存储多个地图数据
-	QVector<MapData> maps;
-	// 静态背景缓存
-	QPixmap cachedStaticMap;
-	// 初始化地图
+	QVector<MapData> maps;   // 存储多个地图数据
+	QPixmap cachedStaticMap; // 缓存静态地图
+
+	// 初始化地图（可以初始化多个地图，实际游戏中只用到了一个）
 	void initializeMapA(MapData& mapA);
 	void initializeMapB(MapData& mapB);
 	void initializeMapC(MapData& mapC);
-	// 选择需加载的地图号
-	void loadMap(int level);
-	// 缓存静态地图
-	void cacheStaticMap();
-	// 绘制地图
-	void paintEvent(QPaintEvent* event);
-	// 格子是否为空
-	bool isEmptyGrid = true;
-	bool checkEmptyGrid(int gridX, int gridY);
+
+	void loadMap(int level);                   // 选择需加载的地图号
+	void cacheStaticMap();                     // 缓存静态地图
+	void paintEvent(QPaintEvent* event);       // 绘制地图
+	bool isEmptyGrid = true;                   // 判断格子是否为空
+	bool checkEmptyGrid(int gridX, int gridY); // 检查格子是否为空
 
 	/*** 物品 ***/
 
@@ -137,40 +129,39 @@ private:
 	void placeCutterAt(const QPoint& pos);
 	void placeTrashAt(const QPoint& pos);
 
-	// 放置的传送带列表
-	QVector<Belt*> beltList;
-	// 判断传送带方向
-	void getBeltDirection(QPoint currentPosition);
-	bool isDirectionChanged = false;
-
-	Hub* hub;
+	Hub* hub;                                      // 交付中心
+	QVector<Belt*> beltList;                       // 放置的传送带列表
+	void getBeltDirection(QPoint currentPosition); // 获取传送带的方向
+	bool isDirectionChanged = false;               // 判断方向是否改变
+	QPoint mousePosition;                          // 当前鼠标位置
 
 	/*** 音效 ***/
+
 	QSoundEffect* placeSound;
 	QSoundEffect* deleteSound;
 	QSoundEffect* chooseSound;
 
 	/*** 存档 ***/
-	void createDeviceByTypeID(int typeID, int i, int j);
-	void autoSaveGame();
+
+	void createDeviceByTypeID(int typeID, int i, int j); // 根据设备 ID 创建设备
+	void autoSaveGame();                                 // 自动保存游戏
 
 	/*** 任务 ***/
-	QLabel* taskLabel; // 添加 QLabel 成员变量
-	QVector<Task> tasks;
-	int currentTaskIndex;
-	QLabel* taskIconLabel;
-	QHBoxLayout* taskLayout;
-	CompletePage* completionWidget;
-	void updateTaskDisplay();
+
+	QVector<Task> tasks;            // 任务列表
+	QLabel* taskLabel;              // 任务内容
+	QLabel* taskIconLabel;          // 任务图标
+	QHBoxLayout* taskLayout;        // 任务布局
+	int currentTaskIndex;           // 当前任务索引
+	CompletePage* completionWidget; // 完成任务的提示窗口
+	void updateTaskDisplay();       // 更新任务显示
 
 	/*** 槽 ***/
+
 private slots:
-	// 鼠标单击某按钮后，标记为可以放下该物品
-	void onButtonClicked(QString s);
-	// 右键删除操作
-	void rightClicked(Device* device);
-	// 新生成矿物的槽函数
-	void onNewMineralGenerated(Mineral* mineral);
+	void onButtonClicked(QString s);              // 鼠标单击某按钮后，标记为可以放下该物品
+	void rightClicked(Device* device);            // 右键删除设备操作
+	void onNewMineralGenerated(Mineral* mineral); // 新生成矿物的槽函数
 };
 
 #endif

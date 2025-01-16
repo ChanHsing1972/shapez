@@ -1,3 +1,6 @@
+// Created by ChenXin.
+// 主窗口类的实现。
+
 #include "mainWindow.h"
 
 mainWindow::mainWindow(QWidget* parent) : QWidget(parent)
@@ -11,7 +14,7 @@ mainWindow::mainWindow(QWidget* parent) : QWidget(parent)
 	setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	setWindowIcon(QIcon("./assets/images/icon.png"));
 
-	// QStackedWidget: 管理页面
+	// 创建页面
 	stackedWidget = new QStackedWidget(this);
 	welcomePage = new WelcomePage(this);
 	gameMap = new GameMap(this);
@@ -38,7 +41,7 @@ mainWindow::mainWindow(QWidget* parent) : QWidget(parent)
 	// 当接收到 startGameFadeIn 信号时，启动 GameMap 的淡入效果
 	connect(welcomePage, &WelcomePage::startGame, gameMap, &GameMap::startFadeInAnimation);
 
-	// 显示欢迎页面
+	// 全屏显示欢迎页面
 	stackedWidget->setCurrentWidget(welcomePage);
 	showFullScreen();
 }
