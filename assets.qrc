@@ -44,7 +44,6 @@
         <file>assets/images/increase_item_value.png</file>
         <file>assets/images/increase_mine.png</file>
         <file>assets/images/left_cycle.png</file>
-        <file>assets/images/logo.png</file>
         <file>assets/images/miner_A.png</file>
         <file>assets/images/miner_blue_A.png</file>
         <file>assets/images/miner_blue_D.png</file>
@@ -70,5 +69,6 @@
         <file>assets/sound_effects/choose.wav</file>
         <file>assets/sound_effects/delete.wav</file>
         <file>assets/sound_effects/place.wav</file>
+        <file>assets/images/logo.ico</file>
     </qresource>
 </RCC>

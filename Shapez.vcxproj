@@ -64,6 +64,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -142,6 +147,9 @@
     <QtMoc Include="mineral.h" />
     <QtMoc Include="miner.h" />
     <ClInclude Include="parameters.h" />
+  </ItemGroup>
+  <ItemGroup>
+     <ResourceCompile Include="resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
