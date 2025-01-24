@@ -27,6 +27,7 @@ HelpPage::HelpPage(QWidget* parent) : QDialog(parent)
 		"<ul>"
 		"		 <li> 左键单击/拖动：放置设施"
 		"    <li> 右键单击/拖动：删除设施"
+		"    <li> 1/2/3/4：选择设施"
 		"    <li> R：旋转设施"
 		"    <li> Esc：退出游戏"
 		"</ul>"

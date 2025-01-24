@@ -287,6 +287,7 @@ void GameMap::onButtonClicked(QString s)
 	canPlaceMiner = (s == "Miner" ? true : false);
 	canPlaceCutter = (s == "Cutter" ? true : false);
 	canPlaceTrash = (s == "Trash" ? true : false);
+	update();
 }
 
 // 鼠标移动事件：更新光标 & 传送带拖动放置 & 拖动删除物品
@@ -456,7 +457,7 @@ void GameMap::rightClicked(Device* device)
 	device->deleteLater();
 }
 
-// 键盘按下事件：旋转/退出操作
+// 键盘按下事件：旋转/退出/选择操作
 void GameMap::keyPressEvent(QKeyEvent* event)
 {
 	if ((canPlaceBelt || canPlaceMiner || canPlaceCutter || canPlaceTrash) && event->key() == Qt::Key_R)
@@ -476,6 +477,27 @@ void GameMap::keyPressEvent(QKeyEvent* event)
 		if (reply == QMessageBox::Yes)
 		{
 			QApplication::quit();
+		}
+	}
+
+	if (event->key() == Qt::Key_1 || event->key() == Qt::Key_2 || event->key() == Qt::Key_3 || event->key() == Qt::Key_4)
+	{
+		switch (event->key())
+		{
+		case Qt::Key_1:
+			onButtonClicked("Belt");
+			break;
+		case Qt::Key_2:
+			onButtonClicked("Miner");
+			break;
+		case Qt::Key_3:
+			onButtonClicked("Cutter");
+			break;
+		case Qt::Key_4:
+			onButtonClicked("Trash");
+			break;
+		default:
+			break;
 		}
 	}
 }

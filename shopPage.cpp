@@ -3,14 +3,14 @@
 
 #include "shopPage.h"
 
-#define BUTTON_WIDTH 180
-#define BUTTON_HEIGHT 60
+#define BUTTON_WIDTH 100
+#define BUTTON_HEIGHT 50
 
 ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	: QDialog(parent), devices(devices)
 {
 	setWindowTitle("商店");
-	setFixedSize(WINDOW_WIDTH * 2 / 3, WINDOW_HEIGHT * 2 / 3);
+	setFixedSize(WINDOW_WIDTH / 2.5, WINDOW_HEIGHT / 2.25);
 	QVBoxLayout* mainLayout = new QVBoxLayout(this);
 
 	int fontPingFang = QFontDatabase::addApplicationFont("./PingFang-Regular.ttf");
@@ -24,10 +24,10 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	QString buttonStyleSheet =
 		R"(
         QPushButton {
-            font-size: 28px;
+            font-size: 24px;
             background-color: #008700;
             color: white;
-            border-radius: 20px;
+            border-radius: 15px;
         }
         QPushButton:hover {
             background-color: #008700;
@@ -38,103 +38,150 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
             padding-top: 3px;
         }
     )";
-	QString labelStyleSheet = "font-size: 44px; color: #666870;";
-	QString costLabelStyleSheet = "font-size: 28px; color: #000000;";
+	QString labelStyleSheet = "font-size: 40px; color: #666870;";
+	QString costLabelStyleSheet = "font-size: 24px; color: #000000;";
+	QString sectionStyleSheet = "background-color: #dddddd; border-radius: 20px;";
 
 	// 开采器布局
+	QWidget* minerSection = new QWidget(this);
+	minerSection->setStyleSheet(sectionStyleSheet);
+	QVBoxLayout* minerSectionLayout = new QVBoxLayout(minerSection);
+
 	QHBoxLayout* minerLayout = new QHBoxLayout();
-	minerLayout->addSpacerItem(new QSpacerItem(40, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 	QLabel* minerIcon = new QLabel(this);
-	minerIcon->setPixmap(QPixmap("./assets/images/miner_button.png").scaled(50, 50, Qt::KeepAspectRatio));
-	QLabel* minerLabel = new QLabel("<h4>开采器</h4>", this);
+	minerIcon->setAlignment(Qt::AlignCenter);
+	minerIcon->setPixmap(QPixmap("./assets/images/miner_button.png").scaled(90, 90, Qt::KeepAspectRatio));
+	QVBoxLayout* minerInfoLayout = new QVBoxLayout();
+	QLabel* minerLabel = new QLabel("<strong>开采器</strong>", this);
 	minerLabel->setFont(customFontYaHei);
 	minerLabel->setStyleSheet(labelStyleSheet);
 	minerLevelLabel = new QLabel(QString("等级 %1").arg(minerLevel), this);
 	minerLevelLabel->setFont(customFontYaHei);
 	minerLevelLabel->setStyleSheet(costLabelStyleSheet);
-	minerCostLabel = new QLabel(QString("消耗 %1 摩拉").arg(minerCost), this);
+	minerInfoLayout->addSpacing(50);
+	minerInfoLayout->addWidget(minerLabel);
+	minerInfoLayout->addWidget(minerLevelLabel);
+	minerInfoLayout->addSpacing(50);
+
+	QVBoxLayout* minerCostLayout = new QVBoxLayout();
+	minerCostLabel = new QLabel(QString("-%1 摩拉").arg(minerCost), this);
 	minerCostLabel->setFont(customFontYaHei);
+	minerCostLabel->setAlignment(Qt::AlignCenter);
 	minerCostLabel->setStyleSheet(costLabelStyleSheet);
 	minerButton = new QPushButton("升级", this);
 	minerButton->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	minerButton->setFont(customFontPingFang);
 	minerButton->setStyleSheet(buttonStyleSheet);
-	minerLayout->addWidget(minerIcon);
-	minerLayout->addSpacerItem(new QSpacerItem(10, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	minerLayout->addWidget(minerLabel);
-	minerLayout->addSpacerItem(new QSpacerItem(50, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	minerLayout->addWidget(minerLevelLabel);
-	minerLayout->addSpacerItem(new QSpacerItem(20, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	minerLayout->addWidget(minerCostLabel);
-	minerLayout->addSpacerItem(new QSpacerItem(250, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	minerLayout->addWidget(minerButton);
-	minerLayout->addSpacerItem(new QSpacerItem(40, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+	minerCostLayout->addSpacing(50);
+	minerCostLayout->addWidget(minerCostLabel);
+	minerCostLayout->addWidget(minerButton);
+	minerCostLayout->addSpacing(50);
 
+	minerLayout->addSpacing(60);
+	minerLayout->addWidget(minerIcon);
+	minerLayout->addSpacing(15);
+	minerLayout->addLayout(minerInfoLayout);
+	minerLayout->addStretch();
+	minerLayout->addLayout(minerCostLayout);
+	minerLayout->addSpacing(75);
+	minerSectionLayout->addLayout(minerLayout);
 
 	// 传送带布局
+	QWidget* beltSection = new QWidget(this);
+	beltSection->setStyleSheet(sectionStyleSheet);
+	QVBoxLayout* beltSectionLayout = new QVBoxLayout(beltSection);
+
 	QHBoxLayout* beltLayout = new QHBoxLayout();
-	beltLayout->addSpacerItem(new QSpacerItem(40, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 	QLabel* beltIcon = new QLabel(this);
-	beltIcon->setPixmap(QPixmap("./assets/images/belt_button.png").scaled(50, 50, Qt::KeepAspectRatio));
-	QLabel* beltLabel = new QLabel("<h4>传送带</h4>", this);
+	beltIcon->setAlignment(Qt::AlignCenter);
+	beltIcon->setPixmap(QPixmap("./assets/images/belt_button.png").scaled(85, 85, Qt::KeepAspectRatio));
+	QVBoxLayout* beltInfoLayout = new QVBoxLayout();
+	QLabel* beltLabel = new QLabel("<strong>传送带</strong>", this);
 	beltLabel->setFont(customFontYaHei);
 	beltLabel->setStyleSheet(labelStyleSheet);
 	beltLevelLabel = new QLabel(QString("等级 %1").arg(beltLevel), this);
 	beltLevelLabel->setFont(customFontYaHei);
 	beltLevelLabel->setStyleSheet(costLabelStyleSheet);
-	beltCostLabel = new QLabel(QString("消耗 %1 摩拉").arg(beltCost), this);
+	beltInfoLayout->addSpacing(50);
+	beltInfoLayout->addWidget(beltLabel);
+	beltInfoLayout->addWidget(beltLevelLabel);
+	beltInfoLayout->addSpacing(50);
+
+	QVBoxLayout* beltCostLayout = new QVBoxLayout();
+	beltCostLabel = new QLabel(QString("-%1 摩拉").arg(beltCost), this);
 	beltCostLabel->setFont(customFontYaHei);
+	beltCostLabel->setAlignment(Qt::AlignCenter);
 	beltCostLabel->setStyleSheet(costLabelStyleSheet);
 	beltButton = new QPushButton("升级", this);
 	beltButton->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	beltButton->setFont(customFontPingFang);
 	beltButton->setStyleSheet(buttonStyleSheet);
+	beltCostLayout->addSpacing(50);
+	beltCostLayout->addWidget(beltCostLabel);
+	beltCostLayout->addWidget(beltButton);
+	beltCostLayout->addSpacing(50);
+
+	beltLayout->addSpacing(60);
 	beltLayout->addWidget(beltIcon);
-	beltLayout->addSpacerItem(new QSpacerItem(10, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	beltLayout->addWidget(beltLabel);
-	beltLayout->addSpacerItem(new QSpacerItem(50, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	beltLayout->addWidget(beltLevelLabel);
-	beltLayout->addSpacerItem(new QSpacerItem(20, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	beltLayout->addWidget(beltCostLabel);
-	beltLayout->addSpacerItem(new QSpacerItem(250, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	beltLayout->addWidget(beltButton);
-	beltLayout->addSpacerItem(new QSpacerItem(40, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+	beltLayout->addSpacing(15);
+	beltLayout->addLayout(beltInfoLayout);
+	beltLayout->addStretch();
+	beltLayout->addLayout(beltCostLayout);
+	beltLayout->addSpacing(75);
+	beltSectionLayout->addLayout(beltLayout);
 
 	// 切割机布局
+	QWidget* cutterSection = new QWidget(this);
+	cutterSection->setStyleSheet(sectionStyleSheet);
+	QVBoxLayout* cutterSectionLayout = new QVBoxLayout(cutterSection);
+
 	QHBoxLayout* cutterLayout = new QHBoxLayout();
-	cutterLayout->addSpacerItem(new QSpacerItem(40, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 	QLabel* cutterIcon = new QLabel(this);
-	cutterIcon->setPixmap(QPixmap("./assets/images/cutter_button.png").scaled(50, 50, Qt::KeepAspectRatio));
-	QLabel* cutterLabel = new QLabel("<h4>切割机</h4>", this);
+	cutterIcon->setAlignment(Qt::AlignCenter);
+	cutterIcon->setPixmap(QPixmap("./assets/images/cutter_button.png").scaled(85, 85, Qt::KeepAspectRatio));
+	QVBoxLayout* cutterInfoLayout = new QVBoxLayout();
+	QLabel* cutterLabel = new QLabel("<strong>切割机</strong>", this);
 	cutterLabel->setFont(customFontYaHei);
 	cutterLabel->setStyleSheet(labelStyleSheet);
 	cutterLevelLabel = new QLabel(QString("等级 %1").arg(cutterLevel), this);
 	cutterLevelLabel->setFont(customFontYaHei);
 	cutterLevelLabel->setStyleSheet(costLabelStyleSheet);
-	cutterCostLabel = new QLabel(QString("消耗 %1 摩拉").arg(cutterCost), this);
+	cutterInfoLayout->addSpacing(50);
+	cutterInfoLayout->addWidget(cutterLabel);
+	cutterInfoLayout->addWidget(cutterLevelLabel);
+	cutterInfoLayout->addSpacing(50);
+
+	QVBoxLayout* cutterCostLayout = new QVBoxLayout();
+	cutterCostLabel = new QLabel(QString("-%1 摩拉").arg(cutterCost), this);
 	cutterCostLabel->setFont(customFontYaHei);
+	cutterCostLabel->setAlignment(Qt::AlignCenter);
 	cutterCostLabel->setStyleSheet(costLabelStyleSheet);
 	cutterButton = new QPushButton("升级", this);
 	cutterButton->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	cutterButton->setFont(customFontPingFang);
 	cutterButton->setStyleSheet(buttonStyleSheet);
+	cutterCostLayout->addSpacing(50);
+	cutterCostLayout->addWidget(cutterCostLabel);
+	cutterCostLayout->addWidget(cutterButton);
+	cutterCostLayout->addSpacing(50);
+
+	cutterLayout->addSpacing(60);
 	cutterLayout->addWidget(cutterIcon);
-	cutterLayout->addSpacerItem(new QSpacerItem(10, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	cutterLayout->addWidget(cutterLabel);
-	cutterLayout->addSpacerItem(new QSpacerItem(50, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	cutterLayout->addWidget(cutterLevelLabel);
-	cutterLayout->addSpacerItem(new QSpacerItem(20, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	cutterLayout->addWidget(cutterCostLabel);
-	cutterLayout->addSpacerItem(new QSpacerItem(250, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	cutterLayout->addWidget(cutterButton);
-	cutterLayout->addSpacerItem(new QSpacerItem(40, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+	cutterLayout->addSpacing(15);
+	cutterLayout->addLayout(cutterInfoLayout);
+	cutterLayout->addStretch();
+	cutterLayout->addLayout(cutterCostLayout);
+	cutterLayout->addSpacing(75);
+	cutterSectionLayout->addLayout(cutterLayout);
 
 	// 将各个布局添加到主布局中
-	mainLayout->addSpacerItem(new QSpacerItem(0, 100, QSizePolicy::Fixed, QSizePolicy::Minimum));
-	mainLayout->addLayout(minerLayout);
-	mainLayout->addLayout(beltLayout);
-	mainLayout->addLayout(cutterLayout);
-	mainLayout->addSpacerItem(new QSpacerItem(0, 100, QSizePolicy::Fixed, QSizePolicy::Minimum));
+	mainLayout->addSpacerItem(new QSpacerItem(0, 15, QSizePolicy::Fixed, QSizePolicy::Minimum));
+	mainLayout->addWidget(minerSection);
+	mainLayout->addSpacerItem(new QSpacerItem(0, 3, QSizePolicy::Fixed, QSizePolicy::Minimum));
+	mainLayout->addWidget(beltSection);
+	mainLayout->addSpacerItem(new QSpacerItem(0, 3, QSizePolicy::Fixed, QSizePolicy::Minimum));
+	mainLayout->addWidget(cutterSection);
+	mainLayout->addSpacerItem(new QSpacerItem(0, 15, QSizePolicy::Fixed, QSizePolicy::Minimum));
 
 	connect(minerButton, &QPushButton::clicked, this, &ShopPage::applyMinerSpeed);
 	connect(beltButton, &QPushButton::clicked, this, &ShopPage::applyBeltSpeed);
@@ -170,7 +217,7 @@ void ShopPage::applyMinerSpeed()
 {
 	if (Hub* hub = dynamic_cast<Hub*>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
 	{
-		if (hub->getMineralCount() < 10)
+		if (hub->getMineralCount() < minerCost)
 		{
 			QMessageBox::warning(this, "失败", "矿物数量不足，无法修改开采器速度。");
 			return;
@@ -187,7 +234,8 @@ void ShopPage::applyMinerSpeed()
 	minerLevel++;
 	minerCost *= 2;
 	minerLevelLabel->setText(QString("等级 %1").arg(minerLevel));
-	minerCostLabel->setText(QString("消耗 %1 摩拉").arg(minerCost));
+	minerCostLabel->setText(QString("-%1 摩拉").arg(minerCost));
+	minerCostLabel->setAlignment(Qt::AlignCenter);
 
 	QMessageBox::information(this, "成功", "已修改开采器速度。");
 }
@@ -196,7 +244,7 @@ void ShopPage::applyBeltSpeed()
 {
 	if (Hub* hub = dynamic_cast<Hub*>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
 	{
-		if (hub->getMineralCount() < 15)
+		if (hub->getMineralCount() < beltCost)
 		{
 			QMessageBox::warning(this, "失败", "矿物数量不足，无法修改传送带速度。");
 			return;
@@ -213,7 +261,8 @@ void ShopPage::applyBeltSpeed()
 	beltLevel++;
 	beltCost *= 2;
 	beltLevelLabel->setText(QString("等级 %1").arg(beltLevel));
-	beltCostLabel->setText(QString("消耗 %1 摩拉").arg(beltCost));
+	beltCostLabel->setText(QString("-%1 摩拉").arg(beltCost));
+	beltCostLabel->setAlignment(Qt::AlignCenter);
 
 	QMessageBox::information(this, "成功", "已修改传送带速度。");
 }
@@ -222,7 +271,7 @@ void ShopPage::applyCutterSpeed()
 {
 	if (Hub* hub = dynamic_cast<Hub*>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
 	{
-		if (hub->getMineralCount() < 5)
+		if (hub->getMineralCount() < cutterCost)
 		{
 			QMessageBox::warning(this, "失败", "矿物数量不足，无法修改切割机速度。");
 			return;
@@ -239,7 +288,8 @@ void ShopPage::applyCutterSpeed()
 	cutterLevel++;
 	cutterCost *= 2;
 	cutterLevelLabel->setText(QString("等级 %1").arg(cutterLevel));
-	cutterCostLabel->setText(QString("消耗 %1 摩拉").arg(cutterCost));
+	cutterCostLabel->setText(QString("-%1 摩拉").arg(cutterCost));
+	cutterCostLabel->setAlignment(Qt::AlignCenter);
 
 	QMessageBox::information(this, "成功", "已修改切割机速度。");
 }
