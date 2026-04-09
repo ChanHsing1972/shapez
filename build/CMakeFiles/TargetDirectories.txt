@@ -1,0 +1,5 @@
+/Users/chenxin/Library/Mobile Documents/com~apple~CloudDocs/Workspace/C++/shapez/build/CMakeFiles/Shapez.dir
+/Users/chenxin/Library/Mobile Documents/com~apple~CloudDocs/Workspace/C++/shapez/build/CMakeFiles/edit_cache.dir
+/Users/chenxin/Library/Mobile Documents/com~apple~CloudDocs/Workspace/C++/shapez/build/CMakeFiles/rebuild_cache.dir
+/Users/chenxin/Library/Mobile Documents/com~apple~CloudDocs/Workspace/C++/shapez/build/CMakeFiles/Shapez_autogen_timestamp_deps.dir
+/Users/chenxin/Library/Mobile Documents/com~apple~CloudDocs/Workspace/C++/shapez/build/CMakeFiles/Shapez_autogen.dir
