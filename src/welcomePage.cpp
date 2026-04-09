@@ -4,12 +4,12 @@
 #include "welcomePage.h"
 #include <QFontDatabase>
 
-WelcomePage::WelcomePage(QWidget* parent) : QWidget(parent)
+WelcomePage::WelcomePage(QWidget *parent) : QWidget(parent)
 {
 	setWindowTitle("Welcome to the Shapez");
 	setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	QVBoxLayout* layout = new QVBoxLayout(this);
+	QVBoxLayout *layout = new QVBoxLayout(this);
 
 	startButton = new QPushButton(this);
 	loadButton = new QPushButton(this);
@@ -24,7 +24,11 @@ WelcomePage::WelcomePage(QWidget* parent) : QWidget(parent)
 	exitButton->setText("退      出");
 
 	int fontPingFang = QFontDatabase::addApplicationFont("./PingFang-Regular.ttf");
-	QString fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
+	QString fontPingFangFamily;
+	if (fontPingFang != -1)
+	{
+		fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
+	}
 	QFont customFontPingFang(fontPingFangFamily);
 
 	startButton->setFont(customFontPingFang);
@@ -82,7 +86,7 @@ WelcomePage::WelcomePage(QWidget* parent) : QWidget(parent)
         }
     )");
 
-	layout->setSpacing(20); // 按钮之间的间距
+	layout->setSpacing(20);						// 按钮之间的间距
 	layout->setContentsMargins(10, 10, 10, 10); // 窗口边缘的间距
 
 	// 添加按钮到布局
@@ -102,13 +106,13 @@ WelcomePage::WelcomePage(QWidget* parent) : QWidget(parent)
 	exitButton->setAttribute(Qt::WA_Hover, true);
 
 	// 为按钮添加透明效果
-	QGraphicsOpacityEffect* startOpacityEffect = new QGraphicsOpacityEffect(startButton);
+	QGraphicsOpacityEffect *startOpacityEffect = new QGraphicsOpacityEffect(startButton);
 	startButton->setGraphicsEffect(startOpacityEffect);
 
-	QGraphicsOpacityEffect* continueOpacityEffect = new QGraphicsOpacityEffect(loadButton);
+	QGraphicsOpacityEffect *continueOpacityEffect = new QGraphicsOpacityEffect(loadButton);
 	loadButton->setGraphicsEffect(continueOpacityEffect);
 
-	QGraphicsOpacityEffect* exitOpacityEffect = new QGraphicsOpacityEffect(exitButton);
+	QGraphicsOpacityEffect *exitOpacityEffect = new QGraphicsOpacityEffect(exitButton);
 	exitButton->setGraphicsEffect(exitOpacityEffect);
 
 	// 将透明效果作为属性保存
@@ -130,13 +134,13 @@ WelcomePage::WelcomePage(QWidget* parent) : QWidget(parent)
 	bgmPlayer->play();
 }
 
-bool WelcomePage::eventFilter(QObject* watched, QEvent* event)
+bool WelcomePage::eventFilter(QObject *watched, QEvent *event)
 {
 	if ((watched == startButton || watched == loadButton || watched == exitButton) && event->type() == QEvent::Enter)
 	{
 		// 鼠标进入按钮
-		QGraphicsOpacityEffect* opacityEffect = watched->property("opacityEffect").value<QGraphicsOpacityEffect*>();
-		QPropertyAnimation* animation = new QPropertyAnimation(opacityEffect, "opacity", this);
+		QGraphicsOpacityEffect *opacityEffect = watched->property("opacityEffect").value<QGraphicsOpacityEffect *>();
+		QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity", this);
 		animation->setDuration(200);
 		animation->setStartValue(0.7);
 		animation->setEndValue(1.0);
@@ -145,8 +149,8 @@ bool WelcomePage::eventFilter(QObject* watched, QEvent* event)
 	else if ((watched == startButton || watched == loadButton || watched == exitButton) && event->type() == QEvent::Leave)
 	{
 		// 鼠标离开按钮
-		QGraphicsOpacityEffect* opacityEffect = watched->property("opacityEffect").value<QGraphicsOpacityEffect*>();
-		QPropertyAnimation* animation = new QPropertyAnimation(opacityEffect, "opacity", this);
+		QGraphicsOpacityEffect *opacityEffect = watched->property("opacityEffect").value<QGraphicsOpacityEffect *>();
+		QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity", this);
 		animation->setDuration(200);
 		animation->setStartValue(1.0);
 		animation->setEndValue(0.7);
@@ -169,18 +173,19 @@ void WelcomePage::onStartClicked()
 	exitButton->removeEventFilter(this);
 
 	// 创建淡出效果
-	QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(this);
+	QGraphicsOpacityEffect *opacityEffect = new QGraphicsOpacityEffect(this);
 	this->setGraphicsEffect(opacityEffect);
-	QPropertyAnimation* animation = new QPropertyAnimation(opacityEffect, "opacity", this);
+	QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity", this);
 	animation->setDuration(300); // 设置淡出持续时间（毫秒）
 	animation->setStartValue(1.0);
 	animation->setEndValue(0.0);
 	animation->start(QAbstractAnimation::DeleteWhenStopped);
 
 	// 当淡出动画完成后，隐藏当前页面并发送信号
-	connect(animation, &QPropertyAnimation::finished, this, [this]() {
-		emit startGame(); // 发出开始游戏信号
-		});
+	connect(animation, &QPropertyAnimation::finished, this, [this]()
+			{
+				emit startGame(); // 发出开始游戏信号
+			});
 }
 
 void WelcomePage::onLoadClicked()

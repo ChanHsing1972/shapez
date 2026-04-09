@@ -3,14 +3,14 @@
 
 #include "hub.h"
 
-Hub::Hub(QWidget* parent) : Device(parent), mineralCount(0), mineralTypeCount(4, 0)
+Hub::Hub(QWidget *parent) : Device(parent), mineralCount(0), mineralTypeCount(4, 0)
 {
 	setFixedSize(GRID_SIZE * 2 + 2, GRID_SIZE * 2 - 2);
 	typeID = 4;
 
 	pixmap.load("./assets/images/hub_small.png");
 
-	gameMap = qobject_cast<GameMap*>(parent); // 初始化 GameMap 引用
+	gameMap = qobject_cast<GameMap *>(parent); // 初始化 GameMap 引用
 }
 
 void Hub::setPosition(int x, int y)
@@ -18,7 +18,7 @@ void Hub::setPosition(int x, int y)
 	move(x, y);
 }
 
-void Hub::paintEvent(QPaintEvent* event)
+void Hub::paintEvent(QPaintEvent *event)
 {
 	Q_UNUSED(event);
 	QPainter painter(this);
@@ -27,7 +27,11 @@ void Hub::paintEvent(QPaintEvent* event)
 
 	// 在图标上绘制矿物数量
 	int fontImpact = QFontDatabase::addApplicationFont("./impact.ttf");
-	QString fontImpactFamily = QFontDatabase::applicationFontFamilies(fontImpact).at(0);
+	QString fontImpactFamily;
+	if (fontImpact != -1)
+	{
+		fontImpactFamily = QFontDatabase::applicationFontFamilies(fontImpact).at(0);
+	}
 	QFont customFontImpact(fontImpactFamily, 18);
 
 	painter.setFont(customFontImpact);

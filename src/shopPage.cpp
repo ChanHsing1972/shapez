@@ -6,19 +6,27 @@
 #define BUTTON_WIDTH 100
 #define BUTTON_HEIGHT 50
 
-ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
+ShopPage::ShopPage(QVector<QVector<Device *>> &devices, QWidget *parent)
 	: QDialog(parent), devices(devices)
 {
 	setWindowTitle("商店");
 	setFixedSize(WINDOW_WIDTH / 2.5, WINDOW_HEIGHT / 2.25);
-	QVBoxLayout* mainLayout = new QVBoxLayout(this);
+	QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
 	int fontPingFang = QFontDatabase::addApplicationFont("./PingFang-Regular.ttf");
-	QString fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
+	QString fontPingFangFamily;
+	if (fontPingFang != -1)
+	{
+		fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
+	}
 	QFont customFontPingFang(fontPingFangFamily);
 
 	int fontYaHei = QFontDatabase::addApplicationFont("./微软雅黑.ttc");
-	QString fontYaHeiFamily = QFontDatabase::applicationFontFamilies(fontYaHei).at(0);
+	QString fontYaHeiFamily;
+	if (fontYaHei != -1)
+	{
+		fontYaHeiFamily = QFontDatabase::applicationFontFamilies(fontYaHei).at(0);
+	}
 	QFont customFontYaHei(fontYaHeiFamily);
 
 	QString buttonStyleSheet =
@@ -43,16 +51,16 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	QString sectionStyleSheet = "background-color: #dddddd; border-radius: 20px;";
 
 	// 开采器布局
-	QWidget* minerSection = new QWidget(this);
+	QWidget *minerSection = new QWidget(this);
 	minerSection->setStyleSheet(sectionStyleSheet);
-	QVBoxLayout* minerSectionLayout = new QVBoxLayout(minerSection);
+	QVBoxLayout *minerSectionLayout = new QVBoxLayout(minerSection);
 
-	QHBoxLayout* minerLayout = new QHBoxLayout();
-	QLabel* minerIcon = new QLabel(this);
+	QHBoxLayout *minerLayout = new QHBoxLayout();
+	QLabel *minerIcon = new QLabel(this);
 	minerIcon->setAlignment(Qt::AlignCenter);
 	minerIcon->setPixmap(QPixmap("./assets/images/miner_button.png").scaled(90, 90, Qt::KeepAspectRatio));
-	QVBoxLayout* minerInfoLayout = new QVBoxLayout();
-	QLabel* minerLabel = new QLabel("<strong>开采器</strong>", this);
+	QVBoxLayout *minerInfoLayout = new QVBoxLayout();
+	QLabel *minerLabel = new QLabel("<strong>开采器</strong>", this);
 	minerLabel->setFont(customFontYaHei);
 	minerLabel->setStyleSheet(labelStyleSheet);
 	minerLevelLabel = new QLabel(QString("等级 %1").arg(minerLevel), this);
@@ -63,7 +71,7 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	minerInfoLayout->addWidget(minerLevelLabel);
 	minerInfoLayout->addSpacing(50);
 
-	QVBoxLayout* minerCostLayout = new QVBoxLayout();
+	QVBoxLayout *minerCostLayout = new QVBoxLayout();
 	minerCostLabel = new QLabel(QString("-%1 摩拉").arg(minerCost), this);
 	minerCostLabel->setFont(customFontYaHei);
 	minerCostLabel->setAlignment(Qt::AlignCenter);
@@ -87,16 +95,16 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	minerSectionLayout->addLayout(minerLayout);
 
 	// 传送带布局
-	QWidget* beltSection = new QWidget(this);
+	QWidget *beltSection = new QWidget(this);
 	beltSection->setStyleSheet(sectionStyleSheet);
-	QVBoxLayout* beltSectionLayout = new QVBoxLayout(beltSection);
+	QVBoxLayout *beltSectionLayout = new QVBoxLayout(beltSection);
 
-	QHBoxLayout* beltLayout = new QHBoxLayout();
-	QLabel* beltIcon = new QLabel(this);
+	QHBoxLayout *beltLayout = new QHBoxLayout();
+	QLabel *beltIcon = new QLabel(this);
 	beltIcon->setAlignment(Qt::AlignCenter);
 	beltIcon->setPixmap(QPixmap("./assets/images/belt_button.png").scaled(85, 85, Qt::KeepAspectRatio));
-	QVBoxLayout* beltInfoLayout = new QVBoxLayout();
-	QLabel* beltLabel = new QLabel("<strong>传送带</strong>", this);
+	QVBoxLayout *beltInfoLayout = new QVBoxLayout();
+	QLabel *beltLabel = new QLabel("<strong>传送带</strong>", this);
 	beltLabel->setFont(customFontYaHei);
 	beltLabel->setStyleSheet(labelStyleSheet);
 	beltLevelLabel = new QLabel(QString("等级 %1").arg(beltLevel), this);
@@ -107,7 +115,7 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	beltInfoLayout->addWidget(beltLevelLabel);
 	beltInfoLayout->addSpacing(50);
 
-	QVBoxLayout* beltCostLayout = new QVBoxLayout();
+	QVBoxLayout *beltCostLayout = new QVBoxLayout();
 	beltCostLabel = new QLabel(QString("-%1 摩拉").arg(beltCost), this);
 	beltCostLabel->setFont(customFontYaHei);
 	beltCostLabel->setAlignment(Qt::AlignCenter);
@@ -131,16 +139,16 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	beltSectionLayout->addLayout(beltLayout);
 
 	// 切割机布局
-	QWidget* cutterSection = new QWidget(this);
+	QWidget *cutterSection = new QWidget(this);
 	cutterSection->setStyleSheet(sectionStyleSheet);
-	QVBoxLayout* cutterSectionLayout = new QVBoxLayout(cutterSection);
+	QVBoxLayout *cutterSectionLayout = new QVBoxLayout(cutterSection);
 
-	QHBoxLayout* cutterLayout = new QHBoxLayout();
-	QLabel* cutterIcon = new QLabel(this);
+	QHBoxLayout *cutterLayout = new QHBoxLayout();
+	QLabel *cutterIcon = new QLabel(this);
 	cutterIcon->setAlignment(Qt::AlignCenter);
 	cutterIcon->setPixmap(QPixmap("./assets/images/cutter_button.png").scaled(85, 85, Qt::KeepAspectRatio));
-	QVBoxLayout* cutterInfoLayout = new QVBoxLayout();
-	QLabel* cutterLabel = new QLabel("<strong>切割机</strong>", this);
+	QVBoxLayout *cutterInfoLayout = new QVBoxLayout();
+	QLabel *cutterLabel = new QLabel("<strong>切割机</strong>", this);
 	cutterLabel->setFont(customFontYaHei);
 	cutterLabel->setStyleSheet(labelStyleSheet);
 	cutterLevelLabel = new QLabel(QString("等级 %1").arg(cutterLevel), this);
@@ -151,7 +159,7 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	cutterInfoLayout->addWidget(cutterLevelLabel);
 	cutterInfoLayout->addSpacing(50);
 
-	QVBoxLayout* cutterCostLayout = new QVBoxLayout();
+	QVBoxLayout *cutterCostLayout = new QVBoxLayout();
 	cutterCostLabel = new QLabel(QString("-%1 摩拉").arg(cutterCost), this);
 	cutterCostLabel->setFont(customFontYaHei);
 	cutterCostLabel->setAlignment(Qt::AlignCenter);
@@ -193,13 +201,13 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 	cutterButton->setAttribute(Qt::WA_Hover, true);
 
 	// 为按钮添加透明效果
-	QGraphicsOpacityEffect* minerOpacityEffect = new QGraphicsOpacityEffect(minerButton);
+	QGraphicsOpacityEffect *minerOpacityEffect = new QGraphicsOpacityEffect(minerButton);
 	minerButton->setGraphicsEffect(minerOpacityEffect);
 
-	QGraphicsOpacityEffect* beltOpacityEffect = new QGraphicsOpacityEffect(beltButton);
+	QGraphicsOpacityEffect *beltOpacityEffect = new QGraphicsOpacityEffect(beltButton);
 	beltButton->setGraphicsEffect(beltOpacityEffect);
 
-	QGraphicsOpacityEffect* cutterOpacityEffect = new QGraphicsOpacityEffect(beltButton);
+	QGraphicsOpacityEffect *cutterOpacityEffect = new QGraphicsOpacityEffect(beltButton);
 	cutterButton->setGraphicsEffect(cutterOpacityEffect);
 
 	// 将透明效果作为属性保存
@@ -215,7 +223,7 @@ ShopPage::ShopPage(QVector<QVector<Device*>>& devices, QWidget* parent)
 
 void ShopPage::applyMinerSpeed()
 {
-	if (Hub* hub = dynamic_cast<Hub*>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
+	if (Hub *hub = dynamic_cast<Hub *>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
 	{
 		if (hub->getMineralCount() < minerCost)
 		{
@@ -242,7 +250,7 @@ void ShopPage::applyMinerSpeed()
 
 void ShopPage::applyBeltSpeed()
 {
-	if (Hub* hub = dynamic_cast<Hub*>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
+	if (Hub *hub = dynamic_cast<Hub *>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
 	{
 		if (hub->getMineralCount() < beltCost)
 		{
@@ -269,7 +277,7 @@ void ShopPage::applyBeltSpeed()
 
 void ShopPage::applyCutterSpeed()
 {
-	if (Hub* hub = dynamic_cast<Hub*>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
+	if (Hub *hub = dynamic_cast<Hub *>((devices)[(WINDOW_WIDTH / GRID_SIZE - 2) / 2][(WINDOW_HEIGHT / GRID_SIZE - 2) / 2]))
 	{
 		if (hub->getMineralCount() < cutterCost)
 		{
@@ -294,13 +302,13 @@ void ShopPage::applyCutterSpeed()
 	QMessageBox::information(this, "成功", "已修改切割机速度。");
 }
 
-bool ShopPage::eventFilter(QObject* watched, QEvent* event)
+bool ShopPage::eventFilter(QObject *watched, QEvent *event)
 {
 	if ((watched == minerButton || watched == beltButton || watched == cutterButton) && event->type() == QEvent::Enter)
 	{
 		// 鼠标进入按钮
-		QGraphicsOpacityEffect* opacityEffect = watched->property("opacityEffect").value<QGraphicsOpacityEffect*>();
-		QPropertyAnimation* animation = new QPropertyAnimation(opacityEffect, "opacity", this);
+		QGraphicsOpacityEffect *opacityEffect = watched->property("opacityEffect").value<QGraphicsOpacityEffect *>();
+		QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity", this);
 		animation->setDuration(200);
 		animation->setStartValue(0.7);
 		animation->setEndValue(1.0);
@@ -309,8 +317,8 @@ bool ShopPage::eventFilter(QObject* watched, QEvent* event)
 	else if ((watched == minerButton || watched == beltButton || watched == cutterButton) && event->type() == QEvent::Leave)
 	{
 		// 鼠标离开按钮
-		QGraphicsOpacityEffect* opacityEffect = watched->property("opacityEffect").value<QGraphicsOpacityEffect*>();
-		QPropertyAnimation* animation = new QPropertyAnimation(opacityEffect, "opacity", this);
+		QGraphicsOpacityEffect *opacityEffect = watched->property("opacityEffect").value<QGraphicsOpacityEffect *>();
+		QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity", this);
 		animation->setDuration(200);
 		animation->setStartValue(1.0);
 		animation->setEndValue(0.7);

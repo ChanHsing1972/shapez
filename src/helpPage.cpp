@@ -3,13 +3,13 @@
 
 #include "helpPage.h"
 
-HelpPage::HelpPage(QWidget* parent) : QDialog(parent)
+HelpPage::HelpPage(QWidget *parent) : QDialog(parent)
 {
 	setWindowTitle("帮助");
 	setFixedSize(900, 1250);
 
-	QVBoxLayout* layout = new QVBoxLayout(this);
-	QLabel* helpTextLabel = new QLabel(this);
+	QVBoxLayout *layout = new QVBoxLayout(this);
+	QLabel *helpTextLabel = new QLabel(this);
 
 	helpTextLabel->setText(
 		"<style>"
@@ -41,26 +41,33 @@ HelpPage::HelpPage(QWidget* parent) : QDialog(parent)
 		"</ul></p>"
 		"<h3>注意事项</h3>"
 		"<p>放置传送带时，为确保传送带能够正确实现自动转弯，请匀速拖动鼠标，<br>\
-			  <strong>使其始终处于格子中线附近</strong>。</p>"
-	);
+			  <strong>使其始终处于格子中线附近</strong>。</p>");
 
 	// 设置字体和边距
 	int fontYaHei = QFontDatabase::addApplicationFont("./微软雅黑.ttc");
-	QString fontYaHeiFamily = QFontDatabase::applicationFontFamilies(fontYaHei).at(0);
+	QString fontYaHeiFamily;
+	if (fontYaHei != -1)
+	{
+		fontYaHeiFamily = QFontDatabase::applicationFontFamilies(fontYaHei).at(0);
+	}
 	QFont customFontYaHei(fontYaHeiFamily, 12);
 
-	helpTextLabel->setFont(customFontYaHei); // 设置字体
+	helpTextLabel->setFont(customFontYaHei);	   // 设置字体
 	helpTextLabel->setContentsMargins(0, 0, 0, 0); // 设置边距
-	helpTextLabel->setOpenExternalLinks(true); // 允许打开超链接
+	helpTextLabel->setOpenExternalLinks(true);	   // 允许打开超链接
 
 	layout->addWidget(helpTextLabel);
 	layout->addSpacerItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
 	// 添加关闭按钮
-	QPushButton* closeButton = new QPushButton("关闭", this);
+	QPushButton *closeButton = new QPushButton("关闭", this);
 
 	int fontPingFang = QFontDatabase::addApplicationFont("./PingFang-Regular.ttf");
-	QString fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
+	QString fontPingFangFamily;
+	if (fontPingFang != -1)
+	{
+		fontPingFangFamily = QFontDatabase::applicationFontFamilies(fontPingFang).at(0);
+	}
 	QFont customFontPingFang(fontPingFangFamily);
 
 	closeButton->setFont(customFontPingFang);
